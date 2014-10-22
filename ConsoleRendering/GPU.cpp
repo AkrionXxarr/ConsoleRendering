@@ -6,9 +6,13 @@
 #include "Shader.h"
 #include "Mesh.h"
 
+#include "TextLogger.h"
+
 #define EPSILON 0.00001
 
 using namespace Math;
+
+//TextLogger gpuLogger("GPU2");
 
 void Barycentric(Vector2f p, Vector2f a, Vector2f b, Vector2f c, float& u, float& v, float& w)
 {
@@ -42,11 +46,11 @@ GPU::~GPU()
 void GPU::DrawElements()
 {
     if (program == nullptr) return;
-
+    std::stringstream sStream;
+    bool gotZValue = false;
 
     COORD sSize = hConsole->GetBufferSizeAsCoord();
     CHAR_INFO* screenBuffer = hConsole->GetScreenBuffer();
-    Matrix4f& MVPMatrix = program->MVPMatrix;
     float halfSWidth = sSize.X / 2.0f;
     float halfSHeight = sSize.Y / 2.0f;
 
@@ -79,10 +83,20 @@ void GPU::DrawElements()
                 if ((u < 0) || (v < 0) || (w < 0)) { continue; }
 
                 float z = ((va * u) + (vb * v) + (vc * w)).z;
+
+                //if (z > 0 || z < -1) { continue; }
                 if (z < zBuffer[(j * sSize.X) + i])
                 {
                     assignPixel = true;
                     zBuffer[(j * sSize.X) + i] = z;
+                }
+
+                if (((i == sSize.X / 2) && (j == sSize.Y / 2)) && !gotZValue)
+                {
+                    //sStream.clear();
+                    //sStream << ": " << z << "\n";
+                    //gpuLogger.AddLine(sStream.str());
+                    //gotZValue = true;
                 }
 
                 if (assignPixel)

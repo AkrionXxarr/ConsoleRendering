@@ -346,7 +346,7 @@ namespace Math
                 r.x, r.y, r.z, 0,
                 u.x, u.y, u.z, 0,
                 f.x, f.y, f.z, 0,
-                0, 0, 0, 1
+                  0,   0,   0, 1
                 );
 
             return *this;
@@ -365,14 +365,15 @@ namespace Math
 
         Matrix4f& InitPerspective(float fov, float aspect, float zNear, float zFar)
         {
-            float tanHalfFOV = (float)tanf(fov / 2);
+            float rad = (M_PI / 180.0f) * fov;
+            float tanHalfFOV = (float)tanf(rad / 2);
             float zRange = zNear - zFar;
 
             *this = Matrix4f(
                 1 / (tanHalfFOV * aspect), 0,              0,                        0,
                 0,                         1 / tanHalfFOV, 0,                        0,
                 0,                         0,              (-zNear - zFar) / zRange, 2 * zFar * zNear / zRange,
-                0,                         0,              0,                        1
+                0,                         0,              1,                        0
                 );
 
             return *this;
@@ -565,6 +566,10 @@ namespace Math
             Vector3f forward = Vector3f(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
             Vector3f up = Vector3f(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x));
             Vector3f right = Vector3f(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + w * y));
+
+            //Vector3f forward = Vector3f(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
+            //Vector3f up = Vector3f(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x));
+            //Vector3f right = Vector3f(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + w * y));
 
             return Matrix4f().InitRotation(forward, up, right);
         }

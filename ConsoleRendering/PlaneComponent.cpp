@@ -5,7 +5,11 @@
 #include "RenderingEngine.h"
 #include "FlatShader.h"
 
+#include "TextLogger.h"
+
 using namespace Math;
+
+//TextLogger objLogger("Obj2");
 
 Vertex vertices[] =
 {
@@ -37,6 +41,10 @@ void PlaneComponent::Update(float delta)
 
 void PlaneComponent::Render(RenderingEngine* renderingEngine)
 {
+    //std::stringstream sStream;
+    //sStream << ": " << this->object->transform.pos.z << "\n";
+    //objLogger.AddLine(sStream.str());
+
     shader->Bind();
     shader->Update(&(this->object->transform), renderingEngine);
     mesh->Draw();
