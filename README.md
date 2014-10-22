@@ -3,7 +3,9 @@ ConsoleRendering
 
 Messing around with some basic 3D rendering to the windows console without an SDK.
 
+
 (Videos sorted from most recent)
+
 Video of output as of commit 365b53e12016004a829924b21663073070301498:
 https://www.youtube.com/watch?v=n-rjLjc9g_Y
 
