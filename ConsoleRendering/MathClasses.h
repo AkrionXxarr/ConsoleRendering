@@ -297,15 +297,15 @@ namespace Math
             for (int i = 0; i < 16; i++) { matrix[i] = 0; }
         }
         Matrix4f(float xx, float xy, float xz, float xw,
-            float yx, float yy, float yz, float yw,
-            float zx, float zy, float zz, float zw,
-            float wx, float wy, float wz, float ww)
+                 float yx, float yy, float yz, float yw,
+                 float zx, float zy, float zz, float zw,
+                 float wx, float wy, float wz, float ww)
         {
             this->matrix = new float[16];
-            M(0, 0) = xx; M(1, 0) = xy; M(2, 0) = xz; M(3, 0) = xw;
-            M(0, 1) = yx; M(1, 1) = yy; M(2, 1) = yz; M(3, 1) = yw;
-            M(0, 2) = zx; M(1, 2) = zy; M(2, 2) = zz; M(3, 2) = zw;
-            M(0, 3) = wx; M(1, 3) = wy; M(2, 3) = wz; M(3, 3) = ww;
+            M(0, 0) = xx; M(0, 1) = xy; M(0, 2) = xz; M(0, 3) = xw;
+            M(1, 0) = yx; M(1, 1) = yy; M(1, 2) = yz; M(1, 3) = yw;
+            M(2, 0) = zx; M(2, 1) = zy; M(2, 2) = zz; M(2, 3) = zw;
+            M(3, 0) = wx; M(3, 1) = wy; M(3, 2) = wz; M(3, 3) = ww;
         }
         Matrix4f(const Matrix4f& other)
         {
@@ -318,14 +318,14 @@ namespace Math
             delete[] this->matrix;
         }
 
-        float& M(int x, int y) { return matrix[(y * 4) + x]; }
+        float& M(int row, int col) { return matrix[(row * 4) + col]; }
 
         Matrix4f& InitTranslation(float x, float y, float z)
         {
             *this = Matrix4f::identity;
-            M(3, 0) = x;
-            M(3, 1) = y;
-            M(3, 2) = z;
+            M(0, 3) = x;
+            M(1, 3) = y;
+            M(2, 3) = z;
             return *this;
         }
 
@@ -365,11 +365,11 @@ namespace Math
 
         Matrix4f& InitPerspective(float fov, float aspect, float zNear, float zFar)
         {
-            float rad = (M_PI / 180.0f) * fov;
+            float rad = float(M_PI / 180.0) * fov;
             float tanHalfFOV = (float)tanf(rad / 2);
             float zRange = zFar - zNear;
 
-            *this = Matrix4f(
+            this->Set(
                 1 / (tanHalfFOV * aspect), 0,              0,                        0,
                 0,                         1 / tanHalfFOV, 0,                        0,
                 0,                         0,              zFar / zRange,            -zFar * zNear / zRange,
@@ -385,11 +385,11 @@ namespace Math
             float height = top - bottom;
             float depth = zFar - zNear;
 
-            *this = Matrix4f(
-                2 / width, 0, 0, -(right + left) / width,
-                0, 2 / height, 0, -(top + bottom) / height,
-                0, 0, -2 / depth, -(zNear + zFar) / depth,
-                0, 0, 0, 1
+            this->Set(
+                2 / width, 0,          0,         -(right + left) / width,
+                0,         2 / height, 0,         -(top + bottom) / height,
+                0,         0,         -2 / depth, -(zNear + zFar) / depth,
+                0,         0,          0,         1
                 );
 
             return *this;
@@ -398,19 +398,19 @@ namespace Math
         Vector3f Transform(Vector3f v)
         {
             return Vector3f(
-                M(0, 0) * v.x + M(1, 0) * v.y + M(2, 0) * v.z + M(3, 0),
-                M(0, 1) * v.x + M(1, 1) * v.y + M(2, 1) * v.z + M(3, 1),
-                M(0, 2) * v.x + M(1, 2) * v.y + M(2, 2) * v.z + M(3, 2)
+                M(0, 0) * v.x + M(0, 1) * v.y + M(0, 2) * v.z + M(0, 3),
+                M(1, 0) * v.x + M(1, 1) * v.y + M(1, 2) * v.z + M(1, 3),
+                M(2, 0) * v.x + M(2, 1) * v.y + M(2, 2) * v.z + M(2, 3)
                 );
         }
 
         Vector4f Transform(Vector4f v)
         {
             return Vector4f(
-                M(0, 0) * v.x + M(1, 0) * v.y + M(2, 0) * v.z + M(3, 0) * v.w,
-                M(0, 1) * v.x + M(1, 1) * v.y + M(2, 1) * v.z + M(3, 1) * v.w,
-                M(0, 2) * v.x + M(1, 2) * v.y + M(2, 2) * v.z + M(3, 2) * v.w,
-                M(0, 3) * v.x + M(1, 3) * v.y + M(2, 3) * v.z + M(3, 3) * v.w
+                M(0, 0) * v.x + M(0, 1) * v.y + M(0, 2) * v.z + M(0, 3) * v.w,
+                M(1, 0) * v.x + M(1, 1) * v.y + M(1, 2) * v.z + M(1, 3) * v.w,
+                M(2, 0) * v.x + M(2, 1) * v.y + M(2, 2) * v.z + M(2, 3) * v.w,
+                M(3, 0) * v.x + M(3, 1) * v.y + M(3, 2) * v.z + M(3, 3) * v.w
                 );
         }
 
@@ -423,15 +423,15 @@ namespace Math
         {
             Matrix4f res;
 
-            for (int y = 0; y < 4; y++)
+            for (int row = 0; row < 4; row++)
             {
-                for (int x = 0; x < 4; x++)
+                for (int col = 0; col < 4; col++)
                 {
-                    res.M(x, y) = 
-                            M(0, y) * m.M(x, 0) +
-                            M(1, y) * m.M(x, 1) +
-                            M(2, y) * m.M(x, 2) +
-                            M(3, y) * m.M(x, 3);
+                    res.M(row, col) =
+                            M(row, 0) * m.M(0, col) +
+                            M(row, 1) * m.M(1, col) +
+                            M(row, 2) * m.M(2, col) +
+                            M(row, 3) * m.M(3, col);
                 }
             }
 
@@ -440,14 +440,14 @@ namespace Math
 
 
         void Set(float xx, float xy, float xz, float xw,
-            float yx, float yy, float yz, float yw,
-            float zx, float zy, float zz, float zw,
-            float wx, float wy, float wz, float ww)
+                 float yx, float yy, float yz, float yw,
+                 float zx, float zy, float zz, float zw,
+                 float wx, float wy, float wz, float ww)
         {
-            M(0, 0) = xx; M(1, 0) = xy; M(2, 0) = xz; M(3, 0) = xw;
-            M(0, 1) = yx; M(1, 1) = yy; M(2, 1) = yz; M(3, 1) = yw;
-            M(0, 2) = zx; M(1, 2) = zy; M(2, 2) = zz; M(3, 2) = zw;
-            M(0, 3) = wx; M(1, 3) = wy; M(2, 3) = wz; M(3, 3) = ww;
+            M(0, 0) = xx; M(0, 1) = xy; M(0, 2) = xz; M(0, 3) = xw;
+            M(1, 0) = yx; M(1, 1) = yy; M(1, 2) = yz; M(1, 3) = yw;
+            M(2, 0) = zx; M(2, 1) = zy; M(2, 2) = zz; M(2, 3) = zw;
+            M(3, 0) = wx; M(3, 1) = wy; M(3, 2) = wz; M(3, 3) = ww;
         }
     public:
         float* matrix;
