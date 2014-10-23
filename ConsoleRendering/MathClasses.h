@@ -367,12 +367,12 @@ namespace Math
         {
             float rad = (M_PI / 180.0f) * fov;
             float tanHalfFOV = (float)tanf(rad / 2);
-            float zRange = zNear - zFar;
+            float zRange = zFar - zNear;
 
             *this = Matrix4f(
                 1 / (tanHalfFOV * aspect), 0,              0,                        0,
                 0,                         1 / tanHalfFOV, 0,                        0,
-                0,                         0,              (-zNear - zFar) / zRange, 2 * zFar * zNear / zRange,
+                0,                         0,              zFar / zRange,            -zFar * zNear / zRange,
                 0,                         0,              1,                        0
                 );
 

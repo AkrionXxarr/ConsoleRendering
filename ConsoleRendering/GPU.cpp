@@ -84,7 +84,7 @@ void GPU::DrawElements()
 
                 float z = ((va * u) + (vb * v) + (vc * w)).z;
 
-                //if (z > 0 || z < -1) { continue; }
+                if (z < 0 || z > 1) { continue; }
                 if (z < zBuffer[(j * sSize.X) + i])
                 {
                     assignPixel = true;
