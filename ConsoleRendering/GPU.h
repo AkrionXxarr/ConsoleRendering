@@ -4,6 +4,11 @@ class Console;
 class Shader;
 struct Vertex;
 
+namespace Math
+{
+    class Vector4f;
+}; // namespace Math
+
 // This class should simulate GPU functions
 class GPU
 {
@@ -35,6 +40,7 @@ private:
     Console* hConsole;
     Shader* program;
     Vertex* vertexBuffer;
+    Math::Vector4f* positionBuffer;
     int vertexBufferSize;
     float* zBuffer;
 };

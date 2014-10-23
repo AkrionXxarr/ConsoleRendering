@@ -33,6 +33,7 @@ void Barycentric(Vector2f p, Vector2f a, Vector2f b, Vector2f c, float& u, float
 GPU::GPU()
 {
     vertexBuffer = new Vertex[2048];
+    positionBuffer = new Vector4f[2048];
 }
 
 GPU::~GPU()
@@ -57,7 +58,8 @@ void GPU::DrawElements()
     // Transform the vertices
     for (int i = 0; i < vertexBufferSize; i++)
     {
-        program->VertexShader(&vertexBuffer[i]);
+        positionBuffer[i] = program->VertexShader(&vertexBuffer[i]);
+        vertexBuffer[i].pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
     }
 
     // Rasterize & Fragment shader
