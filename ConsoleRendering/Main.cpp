@@ -41,6 +41,8 @@ int main()
     root.AddChild(&plane1);
     root.AddChild(&plane2);
 
+    plane1.transform.Rotate(Vector3f(0, 1, 0), 15);
+
 
     GPU::Get().SetConsoleHandle(&console);
 
@@ -53,20 +55,20 @@ int main()
     float counter = 0;
     while (true)
     {
-        //plane1.transform.pos.z -= 0.03f;
+        plane1.transform.pos.z -= 0.03f;
         //camera.transform.Rotate(Vector3f(0, 1, 0), 0.01);
         //camera.transform.pos.x = sin(counter) * 2;
         //camera.transform.pos.z = cos(counter) * 2;
         
         //camera.transform.LookAt(Vector3f(0, 0, 1), camera.transform.rot.GetUp());
 
-        plane1.transform.Rotate(Vector3f(1, 0, 0), 0.01f);
-        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.01f);
-        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.01f);
+        //plane1.transform.Rotate(Vector3f(1, 0, 0), 0.01f);
+        //plane1.transform.Rotate(Vector3f(0, 1, 0), 0.01f);
+        //plane1.transform.Rotate(Vector3f(0, 0, 1), 0.01f);
 
-        plane2.transform.Rotate(Vector3f(1, 0, 0), -0.01f);
-        plane2.transform.Rotate(Vector3f(0, 1, 0), -0.01f);
-        plane2.transform.Rotate(Vector3f(0, 0, 1), -0.01f);
+        //plane2.transform.Rotate(Vector3f(1, 0, 0), -0.01f);
+        //plane2.transform.Rotate(Vector3f(0, 1, 0), -0.01f);
+        //plane2.transform.Rotate(Vector3f(0, 0, 1), -0.01f);
 
         root.UpdateAll(0.01f);
         renderingEngine.Render(&root);
@@ -74,6 +76,5 @@ int main()
         counter += 0.02f;
     }
 
-    // O 0 1 I i L l
     return 0;
 }

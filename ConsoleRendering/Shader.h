@@ -16,7 +16,7 @@ public:
     void Bind();
     virtual void Update(Transform* transform, RenderingEngine* renderingEngine) = 0;
 
-    virtual void VertexShader(Vertex* vertex) = 0;
+    virtual Math::Vector4f VertexShader(Vertex* vertex) = 0;
     virtual void FragmentShader(_CHAR_INFO* ci) = 0;
 
 public:

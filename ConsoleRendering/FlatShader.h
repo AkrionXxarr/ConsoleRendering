@@ -11,7 +11,7 @@ public:
 
     virtual void Update(Transform* transform, RenderingEngine* renderingEngine);
 
-    void VertexShader(Vertex* vertex);
+    Math::Vector4f VertexShader(Vertex* vertex);
     void FragmentShader(_CHAR_INFO* ci);
 
 private:
