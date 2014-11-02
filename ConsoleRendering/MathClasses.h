@@ -332,10 +332,10 @@ namespace Math
         Matrix4f& InitRotation(Vector3f forward, Vector3f up)
         {
             Vector3f f = forward.Normalized();
-            Vector3f r = up.Normalized();
-            r = r.Cross(f);
+            Vector3f r = up.Normalized().Cross(f);
+            //r = r.Cross(f);
 
-            Vector3f u = f.Cross(r);
+            Vector3f u = up.Normalized();
 
             return InitRotation(f, u, r);
         }

@@ -9,7 +9,9 @@
 
 using namespace Math;
 
-//TextLogger objLogger("Obj2");
+#ifdef _DEBUG_LOGGER
+TextLogger objLogger("Obj");
+#endif
 
 Vertex vertices[] =
 {
@@ -41,9 +43,11 @@ void PlaneComponent::Update(float delta)
 
 void PlaneComponent::Render(RenderingEngine* renderingEngine)
 {
-    //std::stringstream sStream;
-    //sStream << ": " << this->object->transform.pos.z << "\n";
-    //objLogger.AddLine(sStream.str());
+    #ifdef _DEBUG_LOGGER
+    std::stringstream sStream;
+    sStream << ": " << this->object->transform.pos.z << "\n";
+    objLogger.AddLine(sStream.str());
+    #endif
 
     shader->Bind();
     shader->Update(&(this->object->transform), renderingEngine);

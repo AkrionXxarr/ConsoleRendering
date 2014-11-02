@@ -35,11 +35,11 @@ int main()
     plane1.AddComponent(new PlaneComponent('#', FOREGROUND_INTENSITY | FOREGROUND_GREEN));
     plane2.AddComponent(new PlaneComponent('@', FOREGROUND_RED));
 
-    plane1.transform.pos = Vector3f(0, 0, 4.25);
+    plane1.transform.pos = Vector3f(0, 0, 2);
     plane2.transform.pos = Vector3f(0, 0, 4);
 
     root.AddChild(&plane1);
-    root.AddChild(&plane2);
+    //root.AddChild(&plane2);
 
     plane1.transform.Rotate(Vector3f(0, 1, 0), 15);
 
