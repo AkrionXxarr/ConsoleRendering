@@ -13,7 +13,7 @@
 
 using namespace Math;
 
-#define _DEBUG_LOGGER
+//#define _DEBUG_LOGGER
 #ifdef _DEBUG_LOGGER
 TextLogger gpuLogger("GPU");
 #endif
@@ -38,6 +38,7 @@ GPU::GPU()
 {
     vertexBuffer = new Vertex[2048];
     positionBuffer = new Vector4f[2048];
+    validPolyBuffer = new bool[2048];
 }
 
 GPU::~GPU()
@@ -46,6 +47,8 @@ GPU::~GPU()
         delete[] zBuffer;
     if (vertexBuffer != nullptr)
         delete[] vertexBuffer;
+    if (validPolyBuffer != nullptr)
+        delete[] validPolyBuffer;
 }
 
 void GPU::DrawElements()
@@ -80,8 +83,6 @@ void GPU::DrawElements()
             << "Before W divide: [" << pb.x << ", " << pb.y << ", " << pb.z << ", " << pb.w << "]\n";
         #endif
 
-        vertexBuffer[i].pos = positionBuffer[i].XYZ();
-
         vertexBuffer[i].pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
 
         #ifdef _DEBUG_LOGGER
@@ -91,22 +92,38 @@ void GPU::DrawElements()
         #endif
     }
 
+    for (int v = 0; v < vertexBufferSize; v += 3)
+    {
+        validPolyBuffer[v / 3] = true;
+        Vector4f va = positionBuffer[v];
+        Vector4f vb = positionBuffer[v + 1];
+        Vector4f vc = positionBuffer[v + 2];
+
+        if (va.w <= 0.01f || vb.w < 0.01f || vc.w < 0.01f)
+        {
+            validPolyBuffer[v / 3] = false;
+            //return; // Clip polygon, or the entire mesh
+        }
+    }
+
     #ifdef _DEBUG_LOGGER
     sStream << "\n------------- RASTERIZATION -------------\n";
     #endif
     // Rasterize & Fragment shader
     for (int v = 0; v < vertexBufferSize; v += 3)
     {
+        if (!validPolyBuffer[v / 3]) { continue; }
+
         Vector3f va = vertexBuffer[v].pos;
         Vector3f vb = vertexBuffer[v + 1].pos;
         Vector3f vc = vertexBuffer[v + 2].pos;
 
+        #ifdef _DEBUG_LOGGER
         float aw = positionBuffer[0].w;
         float bw = positionBuffer[1].w;
         float cw = positionBuffer[2].w;
         float dw = positionBuffer[5].w;
 
-        #ifdef _DEBUG_LOGGER
         if (!gotZValue)
         {
             if ((aw < 0) || (bw < 0) || (cw < 0) || (dw < 0))
@@ -145,7 +162,7 @@ void GPU::DrawElements()
 
                 Vector3f bPoint = ((va * u) + (vb * v) + (vc * w));
 
-                if ((u < 0) || (v < 0) || (w < 0)) { continue; }
+                if ((u < 0 - EPSILON) || (v < 0 - EPSILON) || (w < 0 - EPSILON)) { continue; }
 
                 #ifdef _DEBUG_LOGGER
                 if ((((i % 10) == 0) && ((j % 10) == 0)) && !gotZValue)
@@ -160,7 +177,7 @@ void GPU::DrawElements()
                 }
                 #endif
 
-                if (bPoint.z < 0 || bPoint.z > 1) { continue; }
+                if (bPoint.z > 1) { continue; }
                 if (bPoint.z < zBuffer[(j * sSize.X) + i])
                 {
                     assignPixel = true;

@@ -41,6 +41,7 @@ private:
     Shader* program;
     Vertex* vertexBuffer;
     Math::Vector4f* positionBuffer;
+    bool* validPolyBuffer;
     int vertexBufferSize;
     float* zBuffer;
 };
