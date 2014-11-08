@@ -116,9 +116,6 @@ void GPU::DrawElements()
         if (p1.y < p2.y) { Swap(p1, p2); }
 
         float dp1p2 = 0, dp1p3 = 0;
-        bool right = false;
-
-        if (p2.x > p1.x) { right = true; }
 
         if ((p2.y - p1.y) < 0)
         {
@@ -129,6 +126,8 @@ void GPU::DrawElements()
         {
             dp1p3 = (p3.x - p1.x) / (p3.y - p1.y);
         }
+
+        bool right = (dp1p2 != 0) ? (dp1p2 < dp1p3) : (p2.x > p1.x);
 
         int sRow = int(-(p1.y * halfSHeight) + halfSHeight);
         int eRow = int(-(p3.y * halfSHeight) + halfSHeight);
