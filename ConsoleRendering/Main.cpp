@@ -82,23 +82,23 @@ int main()
         //camera.transform.LookAt(Vector3f(camera.transform.pos.x, -1, camera.transform.pos.z), Vector3f(0, 0, 1));
         camera.transform.LookAt(plane2.transform.pos, camera.transform.rot.GetUp());
         
-        plane1.transform.Rotate(Vector3f(1, 0, 0), -0.05f);
-        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.02f);
-        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.04f);
+        plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
+        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
+        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
 
         plane2.transform.pos.y = sin(counter2) * 1.5;
         plane2.transform.pos.z = 4 + ((sin(counter) - 0.5f) * 5);
         plane2.transform.pos.x = cos(counter) * 1.25;
 
-        plane2.transform.Rotate(Vector3f(1, 0, 0), -0.01f);
-        plane2.transform.Rotate(Vector3f(0, 1, 0), -0.01f);
-        plane2.transform.Rotate(Vector3f(0, 0, 1), 0.03f);
+        plane2.transform.Rotate(Vector3f(1, 0, 0), -0.001f);
+        plane2.transform.Rotate(Vector3f(0, 1, 0), -0.001f);
+        plane2.transform.Rotate(Vector3f(0, 0, 1), 0.003f);
 
         root.UpdateAll(0.01f);
         renderingEngine.Render(&root);
         console.Display();
-        counter += 0.02f;
-        counter2 += 0.075f;
+        counter += 0.002f;
+        counter2 += 0.0075f;
     }
 
     return 0;

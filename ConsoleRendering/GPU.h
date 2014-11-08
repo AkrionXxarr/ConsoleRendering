@@ -6,6 +6,7 @@ struct Vertex;
 
 namespace Math
 {
+    class Vector3f;
     class Vector4f;
 }; // namespace Math
 
@@ -40,6 +41,11 @@ private:
     Console* hConsole;
     Shader* program;
     Vertex* vertexBuffer;
+
+    short sWidth, sHeight;
+    float halfSWidth;
+    float halfSHeight;
+
     Math::Vector4f* positionBuffer;
     bool* validPolyBuffer;
     int vertexBufferSize;

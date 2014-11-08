@@ -34,6 +34,23 @@ void Barycentric(Vector2f p, Vector2f a, Vector2f b, Vector2f c, float& u, float
     u = 1.0f - v - w;
 }
 
+void Swap(Vector3f& a, Vector3f& b)
+{
+    Vector3f t = b;
+    b = a;
+    a = t;
+}
+
+float Clamp(float value, float min = 0, float max = 1)
+{
+    return std::fmax(min, std::fmin(value, max));
+}
+
+float Interpolate(float min, float max, float gradient)
+{
+    return min + (max - min) * Clamp(gradient);
+}
+
 GPU::GPU()
 {
     vertexBuffer = new Vertex[2048];
@@ -57,39 +74,15 @@ void GPU::DrawElements()
     std::stringstream sStream;
     bool gotZValue = false;
 
-    COORD sSize = hConsole->GetBufferSizeAsCoord();
     CHAR_INFO* screenBuffer = hConsole->GetScreenBuffer();
-    float halfSWidth = sSize.X / 2.0f;
-    float halfSHeight = sSize.Y / 2.0f;
+    COORD sSize = { this->sWidth, this->sHeight };
 
-    #ifdef _DEBUG_LOGGER
-    sStream.clear();
-    sStream << "=====================================\n";
-    sStream << "============ RENDER CALL ============\n";
-    sStream << "=====================================\n\n";
-    #endif
-
-    #ifdef _DEBUG_LOGGER
-    sStream << "------------- VERTEX SHADER -------------\n";
-    #endif
     // Transform the vertices
     for (int i = 0; i < vertexBufferSize; i++)
     {
         positionBuffer[i] = program->VertexShader(&vertexBuffer[i]);
 
-        #ifdef _DEBUG_LOGGER
-        Vector4f pb = positionBuffer[i];
-        sStream << std::setprecision(8) << std::fixed
-            << "Before W divide: [" << pb.x << ", " << pb.y << ", " << pb.z << ", " << pb.w << "]\n";
-        #endif
-
         vertexBuffer[i].pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
-
-        #ifdef _DEBUG_LOGGER
-        Vector3f vb = vertexBuffer[i].pos;
-        sStream << std::setprecision(8) << std::fixed
-            << "After  W divide: [" << vb.x << ", " << vb.y << ", " << vb.z << "]\n";
-        #endif
     }
 
     for (int v = 0; v < vertexBufferSize; v += 3)
@@ -102,104 +95,167 @@ void GPU::DrawElements()
         if (va.w <= 0.01f || vb.w < 0.01f || vc.w < 0.01f)
         {
             validPolyBuffer[v / 3] = false;
-            //return; // Clip polygon, or the entire mesh
+            //return; // Clip polygon, or the entire mesh (return for entire mesh)
         }
     }
 
-    #ifdef _DEBUG_LOGGER
-    sStream << "\n------------- RASTERIZATION -------------\n";
-    #endif
     // Rasterize & Fragment shader
+    // Rasterization method primarially researched at:
+    // http://blogs.msdn.com/b/davrous/archive/2013/06/21/tutorial-part-4-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-rasterization-amp-z-buffering.aspx
     for (int v = 0; v < vertexBufferSize; v += 3)
     {
         if (!validPolyBuffer[v / 3]) { continue; }
 
-        Vector3f va = vertexBuffer[v].pos;
-        Vector3f vb = vertexBuffer[v + 1].pos;
-        Vector3f vc = vertexBuffer[v + 2].pos;
+        // p1.y >= p2.y >= p3.y
+        Vector3f p1 = vertexBuffer[v].pos;
+        Vector3f p2 = vertexBuffer[v + 1].pos;
+        Vector3f p3 = vertexBuffer[v + 2].pos;
 
-        #ifdef _DEBUG_LOGGER
-        float aw = positionBuffer[0].w;
-        float bw = positionBuffer[1].w;
-        float cw = positionBuffer[2].w;
-        float dw = positionBuffer[5].w;
+        if (p1.y < p2.y) { Swap(p1, p2); }
+        if (p2.y < p3.y) { Swap(p2, p3); }
+        if (p1.y < p2.y) { Swap(p1, p2); }
 
-        if (!gotZValue)
+        float dp1p2 = 0, dp1p3 = 0;
+        bool right = false;
+
+        if (p2.x > p1.x) { right = true; }
+
+        if ((p2.y - p1.y) < 0)
         {
-            if ((aw < 0) || (bw < 0) || (cw < 0) || (dw < 0))
+            dp1p2 = (p2.x - p1.x) / (p2.y - p1.y);
+        }
+
+        if ((p3.y - p1.y) < 0)
+        {
+            dp1p3 = (p3.x - p1.x) / (p3.y - p1.y);
+        }
+
+        int sRow = int(-(p1.y * halfSHeight) + halfSHeight);
+        int eRow = int(-(p3.y * halfSHeight) + halfSHeight);
+
+        for (int row = sRow; row <= eRow; row++)
+        {
+            if (row < 0 || row >= sSize.Y) { continue; }
+
+            float y = (halfSHeight - row) / halfSHeight;
+            int sCol = 0;
+            int eCol = 0;
+            float sx = 0;
+            float ex = 0;
+
+            if (right)
             {
-                sStream << "\n!!!!!! NEGATIVE W VALUE !!!!!!\n"
-                    << std::setprecision(8) << std::fixed
-                    << "v1: " << aw
-                    << " | v2: " << bw
-                    << " | v3: " << cw
-                    << " | v4: " << dw
-                    << "\n";
+                // p2 is on this side of the triangle:
+                //
+                // p1      p1----p2
+                // |\      |    /
+                // | \     |   /
+                // |  p2   |  /
+                // | /     | /
+                // |/      |/
+                // p3      p3
+
+                if (y > p2.y)
+                {
+                    // Currently scanning this half of the triangle:
+                    //
+                    // p1      p1----p2
+                    // |\      |    /
+                    // |*\     |   /
+                    // |**p2   |  /
+                    // | /     | /
+                    // |/      |/
+                    // p3      p3
+
+                    float grad1 = (p1.y != p3.y) ? (y - p1.y) / (p3.y - p1.y) : 1;
+                    float grad2 = (p1.y != p2.y) ? (y - p1.y) / (p2.y - p1.y) : 1;
+
+                    sx = Interpolate(p1.x, p3.x, grad1);
+                    ex = Interpolate(p1.x, p2.x, grad2);
+                }
+                else
+                {
+                    // Currently scanning this half of the triangle:
+                    //
+                    // p1      p1----p2
+                    // |\      |****/
+                    // | \     |***/
+                    // |**p2   |**/
+                    // |*/     |*/
+                    // |/      |/
+                    // p3      p3
+
+                    float grad1 = (p1.y != p3.y) ? (y - p1.y) / (p3.y - p1.y) : 1;
+                    float grad2 = (p2.y != p3.y) ? (y - p2.y) / (p3.y - p2.y) : 1;
+
+                    sx = Interpolate(p1.x, p3.x, grad1);
+                    ex = Interpolate(p2.x, p3.x, grad2);
+                }
+            }
+            else
+            {
+                // p2 is on this side of the triangle (or in line):
+                //
+                //    p1   p2----p1
+                //    /|   |    /
+                //   / |   |   /
+                // p2  |   |  /
+                //   \ |   | /
+                //    \|   |/
+                //    p3   p3
+
+                if (y > p2.y)
+                {
+                    // Currently scanning this half of the triangle:
+                    //
+                    //    p1   p2----p1
+                    //    /|   |    /
+                    //   /*|   |   /
+                    // p2**|   |  /
+                    //   \ |   | /
+                    //    \|   |/
+                    //    p3   p3
+
+                    float grad1 = (p1.y != p2.y) ? (y - p1.y) / (p2.y - p1.y) : 1;
+                    float grad2 = (p1.y != p3.y) ? (y - p1.y) / (p3.y - p1.y) : 1;
+
+                    sx = Interpolate(p1.x, p2.x, grad1);
+                    ex = Interpolate(p1.x, p3.x, grad2);
+                }
+                else
+                {
+                    // Currently scanning this half of the triangle:
+                    //
+                    //    p1   p2----p1
+                    //    /|   |****/
+                    //   / |   |***/
+                    // p2**|   |**/
+                    //   \*|   |*/
+                    //    \|   |/
+                    //    p3   p3
+
+                    float grad1 = (p2.y != p3.y) ? (y - p2.y) / (p3.y - p2.y) : 1;
+                    float grad2 = (p1.y != p3.y) ? (y - p1.y) / (p3.y - p1.y) : 1;
+
+                    sx = Interpolate(p2.x, p3.x, grad1);
+                    ex = Interpolate(p1.x, p3.x, grad2);
+                }
             }
 
-            sStream << "\nVertex coordinates...\n"
-                << std::setprecision(8) << std::fixed
-                << "v1: (" << vertexBuffer[0].pos.x << ", " << vertexBuffer[0].pos.y << ", " << vertexBuffer[0].pos.z << ")\n"
-                << "v2: (" << vertexBuffer[1].pos.x << ", " << vertexBuffer[1].pos.y << ", " << vertexBuffer[1].pos.z << ")\n"
-                << "v3: (" << vertexBuffer[2].pos.x << ", " << vertexBuffer[2].pos.y << ", " << vertexBuffer[2].pos.z << ")\n"
-                << "v4: (" << vertexBuffer[5].pos.x << ", " << vertexBuffer[5].pos.y << ", " << vertexBuffer[5].pos.z << ")\n"
-                << "\n\nBarycentric coordinates...\n";
-        }
-        #endif
+            sCol = int(sx * halfSWidth + halfSWidth);
+            eCol = int(ex * halfSWidth + halfSWidth);
 
-        for (int i = 0; i < sSize.X; i++)
-        {
-            for (int j = 0; j < sSize.Y; j++)
+            for (int col = sCol; col < eCol; col++)
             {
-                bool assignPixel = false;
+                if (col < 0 || col >= sSize.X) { continue; }
 
-                float x = (i - halfSWidth) / halfSWidth;
-                float y = (halfSHeight - j) / halfSHeight;
+                CHAR_INFO ci;
+                program->FragmentShader(&ci);
 
-                float u, v, w;
-
-                Barycentric(Vector2f(x, y), va.XY(), vb.XY(), vc.XY(), u, v, w);
-
-                Vector3f bPoint = ((va * u) + (vb * v) + (vc * w));
-
-                if ((u < 0 - EPSILON) || (v < 0 - EPSILON) || (w < 0 - EPSILON)) { continue; }
-
-                #ifdef _DEBUG_LOGGER
-                if ((((i % 10) == 0) && ((j % 10) == 0)) && !gotZValue)
-                {
-                    if ((u < 0) || (v < 0) || (w < 0)) 
-                        sStream << "!!";
-
-                    sStream << std::setprecision(4) << std::fixed
-                        << "screen(" << x << ", " << y << "): point("
-                        << std::setprecision(8) << std::fixed 
-                        << bPoint.x << ", " << bPoint.y << ", " << bPoint.z << ")\n";
-                }
-                #endif
-
-                if (bPoint.z > 1) { continue; }
-                if (bPoint.z < zBuffer[(j * sSize.X) + i])
-                {
-                    assignPixel = true;
-                    zBuffer[(j * sSize.X) + i] = bPoint.z;
-                }
-
-                if (assignPixel)
-                {
-                    CHAR_INFO ci;
-                    program->FragmentShader(&ci);
-
-                    screenBuffer[(j * sSize.X) + i] = ci;
-                }
+                screenBuffer[(row * sSize.X) + col] = ci;
             }
         }
-        gotZValue = true;
     }
-
-#ifdef _DEBUG_LOGGER
-    sStream << "\n";
-    gpuLogger.AddLine(sStream.str());
-#endif
 }
 
 // Create a new array for the vertex buffer as the vertices will be modified
@@ -233,6 +289,11 @@ void GPU::ClearBuffers(bool clearZBuffer, bool clearScreenBuffer)
 void GPU::SetConsoleHandle(Console* hConsole)
 {
     this->hConsole = hConsole;
+
+    this->sHeight = hConsole->GetBufferSizeAsCoord().Y;
+    this->sWidth = hConsole->GetBufferSizeAsCoord().X;
+    this->halfSHeight = this->sHeight / 2.0f;
+    this->halfSWidth = this->sWidth / 2.0f;
 
     zBuffer = new float[hConsole->GetBufferSize()];
 }
