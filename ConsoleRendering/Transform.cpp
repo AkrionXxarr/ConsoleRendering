@@ -26,7 +26,13 @@ void Transform::LookAt(Vector3f point, Vector3f up)
 
 Quaternion Transform::GetLookAtDirection(Vector3f point, Vector3f up)
 {
-    return Quaternion(Matrix4f().InitRotation((point - pos).Normalized(), up));
+    Vector3f lookDir = (point - pos).Normalized();
+    // .. What if up == lookDir?
+    Vector3f right = up.Cross(lookDir).Normalized();
+    Vector3f pUp = lookDir.Cross(right).Normalized();
+
+    return Quaternion(Matrix4f().InitRotation(lookDir, pUp));
+    //return Quaternion(Matrix4f().InitRotation(lookDir, up));
 }
 
 Matrix4f Transform::GetTransformation()

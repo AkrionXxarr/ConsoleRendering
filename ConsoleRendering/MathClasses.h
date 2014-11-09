@@ -331,11 +331,13 @@ namespace Math
 
         Matrix4f& InitRotation(Vector3f forward, Vector3f up)
         {
+            //Vector3f f = forward.Normalized();
+            //Vector3f u = up.Normalized();
+            //Vector3f r = u.Cross(f).Normalized();
+
             Vector3f f = forward.Normalized();
             Vector3f r = up.Normalized().Cross(f);
-            //r = r.Cross(f);
-
-            Vector3f u = up.Normalized();
+            Vector3f u = f.Cross(r);
 
             return InitRotation(f, u, r);
         }
@@ -503,6 +505,10 @@ namespace Math
                 if ((rot.M(0, 0) > rot.M(1, 1)) && (rot.M(0, 0) > rot.M(2, 2)))
                 {
                     float s = 2.0f * sqrt(1.0f + rot.M(0, 0) - rot.M(1, 1) - rot.M(2, 2));
+                    w = (rot.M(1, 2) - rot.M(2, 1)) / s;
+                    x = 0.25f * s;
+                    y = (rot.M(1, 0) + rot.M(0, 1)) / s;
+                    z = (rot.M(2, 0) + rot.M(0, 2)) / s;
                 }
                 else if (rot.M(1, 1) > rot.M(2, 2))
                 {
@@ -624,9 +630,9 @@ namespace Math
 
         Quaternion operator * (Vector3f v)
         {
-            float i = w * v.x + y * v.z + z * v.y;
-            float j = w * v.y + z * v.x - x * v.z;
-            float k = w * v.z + x * v.y - y * v.x;
+            float i =  w * v.x + y * v.z + z * v.y;
+            float j =  w * v.y + z * v.x - x * v.z;
+            float k =  w * v.z + x * v.y - y * v.x;
             float h = -x * v.x - y * v.y - z * v.z;
 
             return Quaternion(i, j, k, h);

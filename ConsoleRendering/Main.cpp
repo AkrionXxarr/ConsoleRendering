@@ -33,7 +33,7 @@ int main()
     CHAR_INFO* screenBuffer = console.GetScreenBuffer();
 
     root.parent = nullptr;
-    plane1.AddComponent(new PlaneComponent('#', FOREGROUND_INTENSITY | FOREGROUND_GREEN));
+    plane1.AddComponent(new PlaneComponent('#', FOREGROUND_GREEN));
     plane2.AddComponent(new PlaneComponent('@', FOREGROUND_RED));
     floor.AddComponent(new PlaneComponent('.', FOREGROUND_RED | FOREGROUND_GREEN));
 
@@ -71,7 +71,6 @@ int main()
     while (true)
     {
         camera.transform.pos.z = (cos(counter) * camDist) + 4.25;
-        //camera.transform.pos.z = 1.0f;
         camera.transform.pos.x = sin(counter) * camDist;
         //camera.transform.pos.y = 2;
 
@@ -80,11 +79,12 @@ int main()
         //angle = angle + speed;
         
         //camera.transform.LookAt(Vector3f(camera.transform.pos.x, -1, camera.transform.pos.z), Vector3f(0, 0, 1));
-        camera.transform.LookAt(plane2.transform.pos, camera.transform.rot.GetUp());
+        camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
         
         plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
         plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
         plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
+        //plane1.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
 
         plane2.transform.pos.y = sin(counter2) * 1.5;
         plane2.transform.pos.z = 4 + ((sin(counter) - 0.5f) * 5);

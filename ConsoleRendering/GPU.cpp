@@ -9,6 +9,11 @@
 
 #include "TextLogger.h"
 
+
+// TEMP
+#include "FlatShader.h"
+//
+
 #define EPSILON 0.00001
 
 using namespace Math;
@@ -248,7 +253,9 @@ void GPU::DrawElements()
                 {
                     this->zBuffer[index] = z;
                     CHAR_INFO ci;
-                    program->FragmentShader(&ci);
+                    //program->FragmentShader(&ci);
+                    FlatShader* t = (FlatShader*)program;
+                    t->FragmentShader(&ci, (v == 0));
 
                     screenBuffer[index] = ci;
                 }

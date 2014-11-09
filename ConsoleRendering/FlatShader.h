@@ -13,6 +13,7 @@ public:
 
     Math::Vector4f VertexShader(Vertex* vertex);
     void FragmentShader(_CHAR_INFO* ci);
+    void FragmentShader(_CHAR_INFO* ci, bool firstPoly);
 
 private:
     char c;
