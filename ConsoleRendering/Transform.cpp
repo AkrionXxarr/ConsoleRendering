@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "Transform.h"
 #include "Object.h"
 
@@ -27,7 +29,13 @@ void Transform::LookAt(Vector3f point, Vector3f up)
 Quaternion Transform::GetLookAtDirection(Vector3f point, Vector3f up)
 {
     Vector3f lookDir = (point - pos).Normalized();
-    // .. What if up == lookDir?
+    up = up.Normalized();
+    // .. What if up and lookDir are parallel?
+    if (up == lookDir || up == -lookDir)
+    {
+        lookDir.y += 0.00000001;
+        lookDir.x += 0.00000001;
+    }
     Vector3f right = up.Cross(lookDir).Normalized();
     Vector3f pUp = lookDir.Cross(right).Normalized();
 

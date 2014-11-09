@@ -81,10 +81,10 @@ int main()
         //camera.transform.LookAt(Vector3f(camera.transform.pos.x, -1, camera.transform.pos.z), Vector3f(0, 0, 1));
         camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
         
-        plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
-        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
-        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
-        //plane1.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
+        //plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
+        //plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
+        //plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
+        plane1.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
 
         plane2.transform.pos.y = sin(counter2) * 1.5;
         plane2.transform.pos.z = 4 + ((sin(counter) - 0.5f) * 5);
