@@ -18,22 +18,6 @@ using namespace Math;
 TextLogger gpuLogger("GPU");
 #endif
 
-void Barycentric(Vector2f p, Vector2f a, Vector2f b, Vector2f c, float& u, float& v, float& w)
-{
-    Vector2f v0 = b - a, v1 = c - a, v2 = p - a;
-
-    float d00 = v0.Dot(v0);
-    float d01 = v0.Dot(v1);
-    float d11 = v1.Dot(v1);
-    float d20 = v2.Dot(v0);
-    float d21 = v2.Dot(v1);
-    float denom = d00 * d11 - d01 * d01;
-
-    v = (d11 * d20 - d01 * d21) / denom;
-    w = (d00 * d21 - d01 * d20) / denom;
-    u = 1.0f - v - w;
-}
-
 void Swap(Vector3f& a, Vector3f& b)
 {
     Vector3f t = b;
@@ -137,10 +121,9 @@ void GPU::DrawElements()
             if (row < 0 || row >= sSize.Y) { continue; }
 
             float y = (halfSHeight - row) / halfSHeight;
-            int sCol = 0;
-            int eCol = 0;
-            float sx = 0;
-            float ex = 0;
+            int sCol = 0, eCol = 0;
+            float sx = 0, ex = 0;
+            float z1 = 0, z2 = 0;
 
             if (right)
             {
@@ -171,6 +154,8 @@ void GPU::DrawElements()
 
                     sx = Interpolate(p1.x, p3.x, grad1);
                     ex = Interpolate(p1.x, p2.x, grad2);
+                    z1 = Interpolate(p1.z, p3.z, grad1);
+                    z2 = Interpolate(p1.z, p2.z, grad2);
                 }
                 else
                 {
@@ -189,6 +174,8 @@ void GPU::DrawElements()
 
                     sx = Interpolate(p1.x, p3.x, grad1);
                     ex = Interpolate(p2.x, p3.x, grad2);
+                    z1 = Interpolate(p1.z, p3.z, grad1);
+                    z2 = Interpolate(p2.z, p3.z, grad2);
                 }
             }
             else
@@ -220,6 +207,8 @@ void GPU::DrawElements()
 
                     sx = Interpolate(p1.x, p2.x, grad1);
                     ex = Interpolate(p1.x, p3.x, grad2);
+                    z1 = Interpolate(p1.z, p2.z, grad1);
+                    z2 = Interpolate(p1.z, p3.z, grad2);
                 }
                 else
                 {
@@ -238,6 +227,8 @@ void GPU::DrawElements()
 
                     sx = Interpolate(p2.x, p3.x, grad1);
                     ex = Interpolate(p1.x, p3.x, grad2);
+                    z1 = Interpolate(p2.z, p3.z, grad1);
+                    z2 = Interpolate(p1.z, p3.z, grad2);
                 }
             }
 
@@ -247,11 +238,20 @@ void GPU::DrawElements()
             for (int col = sCol; col < eCol; col++)
             {
                 if (col < 0 || col >= sSize.X) { continue; }
+                int index = (row * sSize.X) + col;
 
-                CHAR_INFO ci;
-                program->FragmentShader(&ci);
+                float x = (col - halfSWidth) / halfSWidth;
+                float grad = (x - sx) / (ex - sx);
+                float z = Interpolate(z1, z2, grad);
 
-                screenBuffer[(row * sSize.X) + col] = ci;
+                if (z < this->zBuffer[index])
+                {
+                    this->zBuffer[index] = z;
+                    CHAR_INFO ci;
+                    program->FragmentShader(&ci);
+
+                    screenBuffer[index] = ci;
+                }
             }
         }
     }
