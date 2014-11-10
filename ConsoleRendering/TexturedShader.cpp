@@ -42,6 +42,11 @@ void TexturedShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv)
         int x = int((uv->x * (bmp.width / 2)) + (bmp.width / 2));
         int y = int(-(uv->y * (bmp.height / 2)) + (bmp.height / 2));
 
+		if (x < 0) { x = 0; }
+		if (y < 0) { y = 0; }
+		if (x >= bmp.width) { x = bmp.width - 1; }
+		if (y >= bmp.height) { y = bmp.height - 1; }
+
         RGB rgb = bmp.GetPixel(x, y);
 
         if (rgb.r == 128)

@@ -32,7 +32,7 @@ int main()
 
     TexturedShader tShader1('#', "TestBitmap.bmp");
     TexturedShader tShader2('@', "TestBitmap2.bmp");
-    TexturedShader tShader3('.', "TestBitmap3.bmp");
+	TexturedShader tShader3('#', "TestBitmap3.bmp");
 
     Object plane1;
     Object plane2;

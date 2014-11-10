@@ -138,6 +138,14 @@ void GPU::DrawElements()
         Vector2f uv2 = vert2.uv;
         Vector2f uv3 = vert3.uv;
 
+		Vector2f uvw1 = uv1 / w1;
+		Vector2f uvw2 = uv2 / w2;
+		Vector2f uvw3 = uv3 / w3;
+
+		float w1i = 1 / w1;
+		float w2i = 1 / w2;
+		float w3i = 1 / w3;
+
         float dp1p2 = 0, dp1p3 = 0;
 
         if ((p2.y - p1.y) < 0)
@@ -164,6 +172,7 @@ void GPU::DrawElements()
             float sx = 0, ex = 0;
             float z1 = 0, z2 = 0;
             float su = 0, eu = 0, sv = 0, ev = 0;
+			float swi = 0, ewi = 0;
 
             if (right)
             {
@@ -197,10 +206,13 @@ void GPU::DrawElements()
                     z1 = Interpolate(p1.z, p3.z, grad1);
                     z2 = Interpolate(p1.z, p2.z, grad2);
 
-                    su = Interpolate(uv1.x, uv3.x, grad1);
-                    eu = Interpolate(uv1.x, uv2.x, grad2);
-                    sv = Interpolate(uv1.y, uv3.y, grad1);
-                    ev = Interpolate(uv1.y, uv2.y, grad2);
+                    su = Interpolate(uvw1.x, uvw3.x, grad1);
+                    eu = Interpolate(uvw1.x, uvw2.x, grad2);
+                    sv = Interpolate(uvw1.y, uvw3.y, grad1);
+                    ev = Interpolate(uvw1.y, uvw2.y, grad2);
+
+					swi = Interpolate(w1i, w3i, grad1);
+					ewi = Interpolate(w1i, w2i, grad2);
                 }
                 else
                 {
@@ -222,10 +234,13 @@ void GPU::DrawElements()
                     z1 = Interpolate(p1.z, p3.z, grad1);
                     z2 = Interpolate(p2.z, p3.z, grad2);
 
-                    su = Interpolate(uv1.x, uv3.x, grad1);
-                    eu = Interpolate(uv2.x, uv3.x, grad2);
-                    sv = Interpolate(uv1.y, uv3.y, grad1);
-                    ev = Interpolate(uv2.y, uv3.y, grad2);
+                    su = Interpolate(uvw1.x, uvw3.x, grad1);
+                    eu = Interpolate(uvw2.x, uvw3.x, grad2);
+                    sv = Interpolate(uvw1.y, uvw3.y, grad1);
+                    ev = Interpolate(uvw2.y, uvw3.y, grad2);
+
+					swi = Interpolate(w1i, w3i, grad1);
+					ewi = Interpolate(w2i, w3i, grad2);
                 }
             }
             else
@@ -260,10 +275,13 @@ void GPU::DrawElements()
                     z1 = Interpolate(p1.z, p2.z, grad1);
                     z2 = Interpolate(p1.z, p3.z, grad2);
 
-                    su = Interpolate(uv1.x, uv2.x, grad1);
-                    eu = Interpolate(uv1.x, uv3.x, grad2);
-                    sv = Interpolate(uv1.y, uv2.y, grad1);
-                    ev = Interpolate(uv1.y, uv3.y, grad2);
+                    su = Interpolate(uvw1.x, uvw2.x, grad1);
+                    eu = Interpolate(uvw1.x, uvw3.x, grad2);
+                    sv = Interpolate(uvw1.y, uvw2.y, grad1);
+                    ev = Interpolate(uvw1.y, uvw3.y, grad2);
+
+					swi = Interpolate(w1i, w2i, grad1);
+					ewi = Interpolate(w1i, w3i, grad2);
                 }
                 else
                 {
@@ -285,10 +303,13 @@ void GPU::DrawElements()
                     z1 = Interpolate(p2.z, p3.z, grad1);
                     z2 = Interpolate(p1.z, p3.z, grad2);
 
-                    su = Interpolate(uv2.x, uv3.x, grad1);
-                    eu = Interpolate(uv1.x, uv3.x, grad2);
-                    sv = Interpolate(uv2.y, uv3.y, grad1);
-                    ev = Interpolate(uv1.y, uv3.y, grad2);
+                    su = Interpolate(uvw2.x, uvw3.x, grad1);
+                    eu = Interpolate(uvw1.x, uvw3.x, grad2);
+                    sv = Interpolate(uvw2.y, uvw3.y, grad1);
+                    ev = Interpolate(uvw1.y, uvw3.y, grad2);
+
+					swi = Interpolate(w2i, w3i, grad1);
+					ewi = Interpolate(w1i, w3i, grad2);
                 }
             }
 
@@ -305,14 +326,16 @@ void GPU::DrawElements()
 
                 float z = Interpolate(z1, z2, grad);
 
-                Vector2f uv(Interpolate(su, eu, grad), Interpolate(sv, ev, grad));
+				float u = Interpolate(su, eu, grad);
+				float v = Interpolate(sv, ev, grad);
+				float wi = Interpolate(swi, ewi, grad);
 
                 if (z < this->zBuffer[index])
                 {
                     this->zBuffer[index] = z;
                     CHAR_INFO ci;
 
-                    program->FragmentShader(&ci, &uv);
+                    program->FragmentShader(&ci, &Vector2f(u / wi, v / wi));
 
                     screenBuffer[index] = ci;
                 }
