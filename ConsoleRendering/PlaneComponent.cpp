@@ -15,25 +15,24 @@ TextLogger objLogger("Obj");
 
 Vertex vertices[] =
 {
-    Vertex(Vector3f(-1, 1, 0), Vector2f(0, 0), Vector3f(0, 0, 0)),
-    Vertex(Vector3f(1, 1, 0), Vector2f(0, 0), Vector3f(0, 0, 0)),
-    Vertex(Vector3f(-1, -1, 0), Vector2f(0, 0), Vector3f(0, 0, 0)),
+    Vertex(Vector3f(-1, 1, 0), Vector2f(-1, 1), Vector3f(0, 0, 0)),
+    Vertex(Vector3f(1, 1, 0), Vector2f(1, 1), Vector3f(0, 0, 0)),
+    Vertex(Vector3f(-1, -1, 0), Vector2f(-1, -1), Vector3f(0, 0, 0)),
 
-    Vertex(Vector3f(-1, -1, 0), Vector2f(0, 0), Vector3f(0, 0, 0)),
-    Vertex(Vector3f(1, 1, 0), Vector2f(0, 0), Vector3f(0, 0, 0)),
-    Vertex(Vector3f(1, -1, 0), Vector2f(0, 0), Vector3f(0, 0, 0))
+    Vertex(Vector3f(-1, -1, 0), Vector2f(-1, -1), Vector3f(0, 0, 0)),
+    Vertex(Vector3f(1, 1, 0), Vector2f(1, 1), Vector3f(0, 0, 0)),
+    Vertex(Vector3f(1, -1, 0), Vector2f(1, -1), Vector3f(0, 0, 0))
 };
 
-PlaneComponent::PlaneComponent(char c, unsigned short attribute)
+PlaneComponent::PlaneComponent(Shader* shader)
 {
     this->mesh = new Mesh(vertices, sizeof(vertices) / sizeof(vertices[0]));
-    this->shader = new FlatShader(c, attribute);
+    this->shader = shader;
 }
 
 PlaneComponent::~PlaneComponent()
 {
     if (this->mesh != nullptr) { delete this->mesh; }
-    if (this->shader != nullptr) { delete this->shader; }
 }
 
 float counter = 0;

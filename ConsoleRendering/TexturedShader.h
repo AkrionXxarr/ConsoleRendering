@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Shader.h"
+#include "Bitmap.h"
 
-// Ignores UVs and such, just generates a single color with a single character
-class FlatShader : public Shader
+class TexturedShader : public Shader
 {
 public:
-    FlatShader(char c, unsigned short attribute);
-    ~FlatShader();
+    TexturedShader(char c, const char* fileName);
+    ~TexturedShader();
 
     virtual void Update(Transform* transform, RenderingEngine* renderingEngine);
 
@@ -16,5 +16,5 @@ public:
 
 private:
     char c;
-    unsigned short attribute;
+    Bitmap bmp;
 };

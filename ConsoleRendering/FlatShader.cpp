@@ -34,17 +34,8 @@ Vector4f FlatShader::VertexShader(Vertex* vertex)
     //vertex->pos = (t.XYZ() / t.w);
 }
 
-void FlatShader::FragmentShader(_CHAR_INFO* ci)
+void FlatShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv = nullptr)
 {
     ci->Attributes = attribute;
     ci->Char.UnicodeChar = c;
-}
-
-void FlatShader::FragmentShader(_CHAR_INFO* ci, bool firstPoly)
-{
-    ci->Char.UnicodeChar = c;
-    if (firstPoly)
-        ci->Attributes = attribute;
-    else
-        ci->Attributes = attribute | FOREGROUND_INTENSITY;
 }

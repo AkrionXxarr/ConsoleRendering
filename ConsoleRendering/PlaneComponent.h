@@ -3,12 +3,12 @@
 
 class Mesh;
 class RenderingEngine;
-class FlatShader;
+class Shader;
 
 class PlaneComponent : public Component
 {
 public:
-    PlaneComponent(char c, unsigned short attribute);
+    PlaneComponent(Shader* shader);
     ~PlaneComponent();
 
     virtual void Update(float delta);
@@ -16,5 +16,5 @@ public:
 
 private:
     Mesh* mesh;
-    FlatShader* shader;
+    Shader* shader;
 };

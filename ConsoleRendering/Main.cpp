@@ -5,6 +5,9 @@
 #include "RenderingEngine.h"
 #include "PlaneComponent.h"
 #include "Camera.h"
+#include "Bitmap.h"
+#include "FlatShader.h"
+#include "TexturedShader.h"
 
 #include "TextLogger.h"
 
@@ -18,6 +21,18 @@ int main()
     Console console(WIDTH, HEIGHT);
     RenderingEngine renderingEngine;
     Object root;
+    Bitmap bmp;
+
+    bmp.Load24("TestBitmap.bmp");
+    //return 0;
+
+    FlatShader fShader1('#', FOREGROUND_GREEN);
+    FlatShader fShader2('@', FOREGROUND_RED);
+    FlatShader fShader3('.', FOREGROUND_RED | FOREGROUND_GREEN);
+
+    TexturedShader tShader1('#', "TestBitmap.bmp");
+    TexturedShader tShader2('@', "TestBitmap2.bmp");
+    TexturedShader tShader3('.', "TestBitmap3.bmp");
 
     Object plane1;
     Object plane2;
@@ -33,9 +48,9 @@ int main()
     CHAR_INFO* screenBuffer = console.GetScreenBuffer();
 
     root.parent = nullptr;
-    plane1.AddComponent(new PlaneComponent('#', FOREGROUND_GREEN));
-    plane2.AddComponent(new PlaneComponent('@', FOREGROUND_RED));
-    floor.AddComponent(new PlaneComponent('.', FOREGROUND_RED | FOREGROUND_GREEN));
+    plane1.AddComponent(new PlaneComponent(&tShader1));
+    plane2.AddComponent(new PlaneComponent(&tShader2));
+    floor.AddComponent(new PlaneComponent(&tShader3));
 
     plane1.transform.pos = Vector3f(0, 0, 4.5);
     plane2.transform.pos = Vector3f(0, 0, 4);
@@ -70,7 +85,7 @@ int main()
     float camDist = 4.75f;
     while (true)
     {
-        camera.transform.pos.z = (cos(counter) * camDist) + 4.25;
+        camera.transform.pos.z = (cos(counter) * camDist) + 4.25f;
         camera.transform.pos.x = sin(counter) * camDist;
         //camera.transform.pos.y = 2;
 
@@ -79,16 +94,16 @@ int main()
         //angle = angle + speed;
         
         //camera.transform.LookAt(Vector3f(camera.transform.pos.x, -1, camera.transform.pos.z), Vector3f(0, 0, 1));
-        camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
+        camera.transform.LookAt(plane1.transform.pos, Vector3f(0, 1, 0));
         
-        //plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
-        //plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
-        //plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
-        plane1.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
+        plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
+        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
+        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
+        //plane1.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
 
-        plane2.transform.pos.y = sin(counter2) * 1.5;
+        plane2.transform.pos.y = sin(counter2) * 1.5f;
         plane2.transform.pos.z = 4 + ((sin(counter) - 0.5f) * 5);
-        plane2.transform.pos.x = cos(counter) * 1.25;
+        plane2.transform.pos.x = cos(counter) * 1.25f;
 
         plane2.transform.Rotate(Vector3f(1, 0, 0), -0.001f);
         plane2.transform.Rotate(Vector3f(0, 1, 0), -0.001f);

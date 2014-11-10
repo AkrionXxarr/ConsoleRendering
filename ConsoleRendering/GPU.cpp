@@ -11,7 +11,7 @@
 
 
 // TEMP
-#include "FlatShader.h"
+#include "TexturedShader.h"
 //
 
 #define EPSILON 0.00001
@@ -23,9 +23,30 @@ using namespace Math;
 TextLogger gpuLogger("GPU");
 #endif
 
+void Swap(float& a, float& b)
+{
+    float t = b;
+    b = a;
+    a = t;
+}
+
+void Swap(Vertex& a, Vertex& b)
+{
+    Vertex t = b;
+    b = a;
+    a = t;
+}
+
 void Swap(Vector3f& a, Vector3f& b)
 {
     Vector3f t = b;
+    b = a;
+    a = t;
+}
+
+void Swap(Vector2f& a, Vector2f& b)
+{
+    Vector2f t = b;
     b = a;
     a = t;
 }
@@ -72,6 +93,7 @@ void GPU::DrawElements()
         positionBuffer[i] = program->VertexShader(&vertexBuffer[i]);
 
         vertexBuffer[i].pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
+        //vertexBuffer[i].uv = vertexBuffer[i].uv / positionBuffer[i].w;
     }
 
     for (int v = 0; v < vertexBufferSize; v += 3)
@@ -96,13 +118,25 @@ void GPU::DrawElements()
         if (!validPolyBuffer[v / 3]) { continue; }
 
         // p1.y >= p2.y >= p3.y
-        Vector3f p1 = vertexBuffer[v].pos;
-        Vector3f p2 = vertexBuffer[v + 1].pos;
-        Vector3f p3 = vertexBuffer[v + 2].pos;
+        Vertex vert1 = vertexBuffer[v];
+        Vertex vert2 = vertexBuffer[v + 1];
+        Vertex vert3 = vertexBuffer[v + 2];
 
-        if (p1.y < p2.y) { Swap(p1, p2); }
-        if (p2.y < p3.y) { Swap(p2, p3); }
-        if (p1.y < p2.y) { Swap(p1, p2); }
+        float w1 = positionBuffer[v].w;
+        float w2 = positionBuffer[v + 1].w;
+        float w3 = positionBuffer[v + 2].w;
+
+        if (vert1.pos.y < vert2.pos.y) { Swap(vert1, vert2); Swap(w1, w2); }
+        if (vert2.pos.y < vert3.pos.y) { Swap(vert2, vert3); Swap(w2, w3); }
+        if (vert1.pos.y < vert2.pos.y) { Swap(vert1, vert2); Swap(w1, w2); }
+
+        Vector3f p1 = vert1.pos;
+        Vector3f p2 = vert2.pos;
+        Vector3f p3 = vert3.pos;
+
+        Vector2f uv1 = vert1.uv;
+        Vector2f uv2 = vert2.uv;
+        Vector2f uv3 = vert3.uv;
 
         float dp1p2 = 0, dp1p3 = 0;
 
@@ -129,6 +163,7 @@ void GPU::DrawElements()
             int sCol = 0, eCol = 0;
             float sx = 0, ex = 0;
             float z1 = 0, z2 = 0;
+            float su = 0, eu = 0, sv = 0, ev = 0;
 
             if (right)
             {
@@ -161,6 +196,11 @@ void GPU::DrawElements()
                     ex = Interpolate(p1.x, p2.x, grad2);
                     z1 = Interpolate(p1.z, p3.z, grad1);
                     z2 = Interpolate(p1.z, p2.z, grad2);
+
+                    su = Interpolate(uv1.x, uv3.x, grad1);
+                    eu = Interpolate(uv1.x, uv2.x, grad2);
+                    sv = Interpolate(uv1.y, uv3.y, grad1);
+                    ev = Interpolate(uv1.y, uv2.y, grad2);
                 }
                 else
                 {
@@ -181,6 +221,11 @@ void GPU::DrawElements()
                     ex = Interpolate(p2.x, p3.x, grad2);
                     z1 = Interpolate(p1.z, p3.z, grad1);
                     z2 = Interpolate(p2.z, p3.z, grad2);
+
+                    su = Interpolate(uv1.x, uv3.x, grad1);
+                    eu = Interpolate(uv2.x, uv3.x, grad2);
+                    sv = Interpolate(uv1.y, uv3.y, grad1);
+                    ev = Interpolate(uv2.y, uv3.y, grad2);
                 }
             }
             else
@@ -214,6 +259,11 @@ void GPU::DrawElements()
                     ex = Interpolate(p1.x, p3.x, grad2);
                     z1 = Interpolate(p1.z, p2.z, grad1);
                     z2 = Interpolate(p1.z, p3.z, grad2);
+
+                    su = Interpolate(uv1.x, uv2.x, grad1);
+                    eu = Interpolate(uv1.x, uv3.x, grad2);
+                    sv = Interpolate(uv1.y, uv2.y, grad1);
+                    ev = Interpolate(uv1.y, uv3.y, grad2);
                 }
                 else
                 {
@@ -234,6 +284,11 @@ void GPU::DrawElements()
                     ex = Interpolate(p1.x, p3.x, grad2);
                     z1 = Interpolate(p2.z, p3.z, grad1);
                     z2 = Interpolate(p1.z, p3.z, grad2);
+
+                    su = Interpolate(uv2.x, uv3.x, grad1);
+                    eu = Interpolate(uv1.x, uv3.x, grad2);
+                    sv = Interpolate(uv2.y, uv3.y, grad1);
+                    ev = Interpolate(uv1.y, uv3.y, grad2);
                 }
             }
 
@@ -247,15 +302,17 @@ void GPU::DrawElements()
 
                 float x = (col - halfSWidth) / halfSWidth;
                 float grad = (x - sx) / (ex - sx);
+
                 float z = Interpolate(z1, z2, grad);
+
+                Vector2f uv(Interpolate(su, eu, grad), Interpolate(sv, ev, grad));
 
                 if (z < this->zBuffer[index])
                 {
                     this->zBuffer[index] = z;
                     CHAR_INFO ci;
-                    //program->FragmentShader(&ci);
-                    FlatShader* t = (FlatShader*)program;
-                    t->FragmentShader(&ci, (v == 0));
+
+                    program->FragmentShader(&ci, &uv);
 
                     screenBuffer[index] = ci;
                 }
