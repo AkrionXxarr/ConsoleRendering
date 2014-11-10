@@ -30,7 +30,7 @@ int main()
     FlatShader fShader2('@', FOREGROUND_RED);
     FlatShader fShader3('.', FOREGROUND_RED | FOREGROUND_GREEN);
 
-    TexturedShader tShader1('#', "TestBitmap.bmp");
+    TexturedShader tShader1('#', "BrettPortrait.bmp");
     TexturedShader tShader2('@', "TestBitmap2.bmp");
 	TexturedShader tShader3('#', "TestBitmap3.bmp");
 
@@ -48,14 +48,15 @@ int main()
     CHAR_INFO* screenBuffer = console.GetScreenBuffer();
 
     root.parent = nullptr;
-    plane1.AddComponent(new PlaneComponent(&tShader1));
-    plane2.AddComponent(new PlaneComponent(&tShader2));
+    plane1.AddComponent(new PlaneComponent(&tShader2));
+    plane2.AddComponent(new PlaneComponent(&tShader1));
     floor.AddComponent(new PlaneComponent(&tShader3));
 
     plane1.transform.pos = Vector3f(0, 0, 4.5);
     plane2.transform.pos = Vector3f(0, 0, 4);
     floor.transform.pos = Vector3f(0, -1, 4.25);
 
+    plane2.transform.scale = Vector3f(3, 3, 3);
     floor.transform.scale = Vector3f(3, 3, 3);
 
     root.AddChild(&plane1);
@@ -94,7 +95,7 @@ int main()
         //angle = angle + speed;
         
         //camera.transform.LookAt(Vector3f(camera.transform.pos.x, -1, camera.transform.pos.z), Vector3f(0, 0, 1));
-        camera.transform.LookAt(plane1.transform.pos, Vector3f(0, 1, 0));
+        camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
         
         plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
         plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);

@@ -49,29 +49,48 @@ void TexturedShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv)
 
         RGB rgb = bmp.GetPixel(x, y);
 
-        if (rgb.r == 128)
+        int intensity = int(0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
+
+        if (intensity < 16)       { c = char(250); }
+        else if (intensity < 32)  { c = char(249); }
+        else if (intensity < 48)  { c = char('-'); }
+        else if (intensity < 64)  { c = char('^'); }
+        else if (intensity < 80)  { c = char(248); }
+        else if (intensity < 96)  { c = char('*'); }
+        else if (intensity < 112) { c = char('='); }
+        else if (intensity < 128) { c = char(240); }
+        else if (intensity < 144) { c = char(246); }
+        else if (intensity < 160) { c = char(237); }
+        else if (intensity < 176) { c = char(234); }
+        else if (intensity < 192) { c = char(247); }
+        else if (intensity < 208) { c = char('#'); }
+        else if (intensity < 224) { c = char(254); }
+        else if (intensity < 240) { c = char(178); }
+        else                      { c = char(219); }
+
+        if (rgb.r > 85 && rgb.r <= 170)
         {
             attribute |= FOREGROUND_RED;
         }
-        else if (rgb.r == 255)
+        else if (rgb.r > 170)
         {
             attribute |= FOREGROUND_INTENSITY | FOREGROUND_RED;
         }
 
-        if (rgb.g == 128)
+        if (rgb.g > 85 && rgb.g <= 170)
         {
             attribute |= FOREGROUND_GREEN;
         }
-        else if (rgb.g == 255)
+        else if (rgb.g > 170)
         {
             attribute |= FOREGROUND_INTENSITY | FOREGROUND_GREEN;
         }
 
-        if (rgb.b == 128)
+        if (rgb.b > 85 && rgb.b <= 170)
         {
             attribute |= FOREGROUND_BLUE;
         }
-        else if (rgb.b == 255)
+        else if (rgb.b > 170)
         {
             attribute |= FOREGROUND_INTENSITY | FOREGROUND_BLUE;
         }
