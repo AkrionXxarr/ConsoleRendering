@@ -10,9 +10,8 @@
 
 using namespace Math;
 
-TexturedShader::TexturedShader(char c, const char* fileName)
+TexturedShader::TexturedShader(const char* fileName)
 {
-    this->c = c;
     bmp.Load24(fileName);
 }
 
@@ -36,6 +35,8 @@ void TexturedShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv)
     unsigned short attribute = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE 
                              | BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_BLUE;
 
+    char c = '#';
+
     if (bmp.loaded)
     {
         attribute = 0;
@@ -51,8 +52,6 @@ void TexturedShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv)
         //RGB rgb = bmp.GetPixel(uv->x, uv->y);
 
         int intensity = int(0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
-
-        c = '#';
 
         if (intensity < 16)       { c = char(250); }
         else if (intensity < 32)  { c = char(249); }

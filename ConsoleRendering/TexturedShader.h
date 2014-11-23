@@ -6,7 +6,7 @@
 class TexturedShader : public Shader
 {
 public:
-    TexturedShader(char c, const char* fileName);
+    TexturedShader(const char* fileName);
     ~TexturedShader();
 
     virtual void Update(Transform* transform, RenderingEngine* renderingEngine);
@@ -15,6 +15,5 @@ public:
     void FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv);
 
 private:
-    char c;
     Bitmap bmp;
 };

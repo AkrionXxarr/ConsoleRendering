@@ -35,9 +35,9 @@ int main()
     FlatShader fShader2('@', FOREGROUND_RED);
     FlatShader fShader3('.', FOREGROUND_RED | FOREGROUND_GREEN);
 
-    TexturedShader tShader1('#', "BrettPortrait.bmp");
-    TexturedShader tShader2('@', "TestBitmap2.bmp");
-	TexturedShader tShader3('#', "TestBitmap3.bmp");
+    TexturedShader tShader1("BrettPortrait.bmp");
+    TexturedShader tShader2("TestBitmap2.bmp");
+	TexturedShader tShader3("TestBitmap3.bmp");
 
     Object plane1;
     Object plane2;
