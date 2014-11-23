@@ -12,6 +12,8 @@ public:
     Component() { }
     virtual ~Component() { }
 
+    virtual void Destroy() = 0;
+
     virtual void Update(float delta) = 0;
     virtual void Render(RenderingEngine* renderingEngine) = 0;
     
@@ -25,11 +27,23 @@ class Object
 {
 public:
     Object() { }
-    ~Object() 
+    ~Object() { }
+
+    void Destroy()
     {
+        for each (Object* obj in children)
+        {
+            obj->Destroy();
+        }
+
         for each (Component* component in components)
         {
-            delete component;
+            if (component != nullptr)
+            {
+                component->Destroy();
+                delete component;
+                component = nullptr;
+            }
         }
     }
 

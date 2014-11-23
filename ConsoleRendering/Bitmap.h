@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
+#include <map>
 
 struct RGB
 {
     unsigned char r, g, b;
 };
 
-// Assumes 24 bit depth
 class Bitmap
 {
 public:
@@ -15,6 +15,7 @@ public:
         if (bitmap != nullptr) { delete[] bitmap; }
     }
 
+    // Load 24 bit depth bitmap
     bool Load24(std::string fileName);
 
     RGB GetPixel(int x, int y);

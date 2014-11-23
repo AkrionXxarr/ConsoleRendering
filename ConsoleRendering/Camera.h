@@ -8,6 +8,8 @@ class Camera : public Component
 public:
     Camera(float fov, float aspect, float zNear, float zFar);
 
+    void Destroy() { }
+
     void Update(float) { }
     void Render(RenderingEngine*) { }
 

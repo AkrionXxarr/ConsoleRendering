@@ -5,7 +5,7 @@ using namespace Math;
 
 Camera::Camera(float fov, float aspect, float zNear, float zFar)
 {
-    this->projection = Math::Matrix4f().InitPerspective(fov, aspect, zNear, zFar);
+    projection = Math::Matrix4f().InitPerspective(fov, aspect, zNear, zFar);
 }
 
 Matrix4f Camera::GetViewProjection()

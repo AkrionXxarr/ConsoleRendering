@@ -4,29 +4,30 @@ Console::Console(int width, int height)
 {
     this->width = width;
     this->height = height;
-    this->screenBuffer = new CHAR_INFO[width * height];
-    this->bufferSize = { width, height };
+    screenBuffer = new CHAR_INFO[width * height];
+    bufferSize = { width, height };
 
-    this->outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    this->inputHandle = GetStdHandle(STD_INPUT_HANDLE);
+    outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    inputHandle = GetStdHandle(STD_INPUT_HANDLE);
 
-    assert(this->outputHandle != INVALID_HANDLE_VALUE);
-    assert(this->inputHandle != INVALID_HANDLE_VALUE);
+    assert(outputHandle != INVALID_HANDLE_VALUE);
+    assert(inputHandle != INVALID_HANDLE_VALUE);
 
-    this->InitializeFont();
-    this->InitializeSize(width, height);
+    InitializeFont();
+    InitializeSize(width, height);
 
     CONSOLE_CURSOR_INFO cci;
 
     cci.bVisible = false;
     cci.dwSize = 1;
 
-    SetConsoleCursorInfo(this->outputHandle, &cci);
+    SetConsoleCursorInfo(outputHandle, &cci);
 }
 
 Console::~Console()
 {
-    delete[] this->screenBuffer;
+    if (screenBuffer != nullptr)
+        delete[] screenBuffer;
 }
 
 void Console::Display()
@@ -36,7 +37,7 @@ void Console::Display()
 
 void Console::SetCursorPosition(int x, int y)
 {
-    SetConsoleCursorPosition(this->outputHandle, { x, y });
+    SetConsoleCursorPosition(outputHandle, { x, y });
 }
 
 void Console::InitializeSize(int width, int height)
@@ -55,11 +56,11 @@ void Console::InitializeFont()
     CONSOLE_FONT_INFOEX cfi;
     cfi.cbSize = sizeof(CONSOLE_FONT_INFOEX);
 
-    GetCurrentConsoleFontEx(this->outputHandle, NULL, &cfi);
+    GetCurrentConsoleFontEx(outputHandle, NULL, &cfi);
 
     cfi.FontWeight = 400;
     cfi.nFont = 2;
     cfi.dwFontSize = { 8, 8 };
 
-    SetCurrentConsoleFontEx(this->outputHandle, NULL, &cfi);
+    SetCurrentConsoleFontEx(outputHandle, NULL, &cfi);
 }

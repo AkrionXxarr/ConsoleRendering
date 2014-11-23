@@ -7,6 +7,7 @@
 class TextLogger
 {
 public:
+    // Extension must be provided
     TextLogger(std::string fileName);
     ~TextLogger();
 

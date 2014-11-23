@@ -29,9 +29,6 @@ void FlatShader::Update(Transform* transform, RenderingEngine* renderingEngine)
 Vector4f FlatShader::VertexShader(Vertex* vertex)
 {
     return MVPMatrix.Transform(Vector4f(vertex->pos, 1));
-    //vertex->pos = worldMatrix.Transform(vertex->pos);
-    //Vector4f t = MVPMatrix.Transform(Vector4f(vertex->pos, 1));
-    //vertex->pos = (t.XYZ() / t.w);
 }
 
 void FlatShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv = nullptr)

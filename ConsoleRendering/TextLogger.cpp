@@ -4,8 +4,8 @@ using namespace std;
 
 TextLogger::TextLogger(string fileName)
 {
-    this->fileName = fileName.append(".txt");
-    fs.open(this->fileName, ofstream::out | ofstream::trunc);
+    this->fileName = fileName;
+    fs.open(fileName, ofstream::out | ofstream::trunc);
     fs.close();
 }
 

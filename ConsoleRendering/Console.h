@@ -27,6 +27,6 @@ private:
     HANDLE outputHandle;
     HANDLE inputHandle;
 
-    CHAR_INFO* screenBuffer;
+    CHAR_INFO* screenBuffer = nullptr;
     COORD bufferSize;
 };

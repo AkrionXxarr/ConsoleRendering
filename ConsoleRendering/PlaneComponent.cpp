@@ -5,15 +5,9 @@
 #include "RenderingEngine.h"
 #include "FlatShader.h"
 
-#include "TextLogger.h"
-
 using namespace Math;
 
-#ifdef _DEBUG_LOGGER
-TextLogger objLogger("Obj");
-#endif
-
-Vertex vertices[] =
+Vertex g_vertices[] =
 {
     Vertex(Vector3f(-1, 1, 0), Vector2f(-1, 1), Vector3f(0, 0, 0)),
     Vertex(Vector3f(1, 1, 0), Vector2f(1, 1), Vector3f(0, 0, 0)),
@@ -26,13 +20,19 @@ Vertex vertices[] =
 
 PlaneComponent::PlaneComponent(Shader* shader)
 {
-    this->mesh = new Mesh(vertices, sizeof(vertices) / sizeof(vertices[0]));
+    int g_vertSize = sizeof(g_vertices) / sizeof(g_vertices[0]);
+    Vertex* vertices = new Vertex[g_vertSize];
+
+    for (int i = 0; i < g_vertSize; i++)
+        vertices[i] = g_vertices[i];
+
+    mesh = new Mesh(vertices, g_vertSize);
     this->shader = shader;
 }
 
-PlaneComponent::~PlaneComponent()
+void PlaneComponent::Destroy()
 {
-    if (this->mesh != nullptr) { delete this->mesh; }
+    if (mesh != nullptr) { delete mesh; }
 }
 
 float counter = 0;
@@ -42,13 +42,7 @@ void PlaneComponent::Update(float delta)
 
 void PlaneComponent::Render(RenderingEngine* renderingEngine)
 {
-    #ifdef _DEBUG_LOGGER
-    std::stringstream sStream;
-    sStream << ": " << this->object->transform.pos.z << "\n";
-    objLogger.AddLine(sStream.str());
-    #endif
-
     shader->Bind();
-    shader->Update(&(this->object->transform), renderingEngine);
+    shader->Update(&(object->transform), renderingEngine);
     mesh->Draw();
 }

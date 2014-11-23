@@ -19,7 +19,7 @@ namespace Math
     public:
         Vector2f()
         {
-            this->x = 0; this->y = 0;
+            x = 0; y = 0;
         }
         Vector2f(float x, float y)
         {
@@ -27,7 +27,7 @@ namespace Math
         }
         Vector2f(const Vector2f& other)
         {
-            this->x = other.x; this->y = other.y;
+            x = other.x; y = other.y;
         }
 
         ~Vector2f() { }
@@ -73,7 +73,7 @@ namespace Math
             return Vector2f(fabs(x), fabs(y));
         }
 
-        void operator = (const Vector2f& v) { this->x = v.x; this->y = v.y; }
+        void operator = (const Vector2f& v) { x = v.x; y = v.y; }
 
         bool operator == (Vector2f& v) { return (x == v.x) && (y == v.y); }
         Vector2f operator - () { return Vector2f(-x, -y); }
@@ -100,7 +100,7 @@ namespace Math
     public:
         Vector3f()
         {
-            this->x = 0; this->y = 0; this->z = 0;
+            x = 0; y = 0; z = 0;
         }
         Vector3f(float x, float y, float z)
         {
@@ -108,11 +108,11 @@ namespace Math
         }
         Vector3f(Vector2f v, float z)
         {
-            this->x = v.x; this->y = v.y; this->z = z;
+            x = v.x; y = v.y; this->z = z;
         }
         Vector3f(const Vector3f& other)
         {
-            this->x = other.x; this->y = other.y; this->z = other.z;
+            x = other.x; y = other.y; z = other.z;
         }
 
         ~Vector3f() { }
@@ -128,17 +128,6 @@ namespace Math
 
             return Vector3f(i, j, k);
         }
-
-        /*
-        Vector3f Rotate(float angle)
-        {
-        float rad = angle * (M_PI / 180.0);
-        float cosine = cos(rad);
-        float sine = sin(rad);
-
-        return Vector3f((x * cosine - y * sine), (x * sine + y * cosine));
-        }
-        */
 
         Vector3f Rotate(Vector3f axis, float angle);
         Vector3f Rotate(Quaternion rotation);
@@ -179,7 +168,7 @@ namespace Math
         Vector2f ZY() { return Vector2f(z, y); }
 
 
-        void operator = (const Vector3f& v) { this->x = v.x; this->y = v.y; this->z = v.z; }
+        void operator = (const Vector3f& v) { x = v.x; y = v.y; z = v.z; }
 
         bool operator == (Vector3f v) { return (x == v.x) && (y == v.y) && (z == v.z); }
         Vector3f operator - () { return Vector3f(-x, -y, -z); }
@@ -205,7 +194,7 @@ namespace Math
     public:
         Vector4f()
         {
-            this->x = 0; this->y = 0; this->z = 0; this->w = 0;
+            x = 0; y = 0; z = 0; w = 0;
         }
         Vector4f(float x, float y, float z, float w)
         {
@@ -213,11 +202,11 @@ namespace Math
         }
         Vector4f(Vector3f v, float w)
         {
-            this->x = v.x; this->y = v.y; this->z = v.z; this->w = w;
+            x = v.x; y = v.y; z = v.z; this->w = w;
         }
         Vector4f(const Vector4f& other)
         {
-            this->x = other.x; this->y = other.y; this->z = other.z; this->w = other.w;
+            x = other.x; y = other.y; z = other.z; w = other.w;
         }
 
         ~Vector4f() { }
@@ -264,8 +253,7 @@ namespace Math
 
 
         Vector3f XYZ() { return Vector3f(x, y, z); }
-        //Vector3f YXZ() { return Vector3f(y, x, z); }
-        //Vector3f YZX() { return Vector3f(y, z, x); }
+        // TODO: More sqizzling
 
         bool operator == (Vector4f v) { return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w); }
         Vector4f operator - () { return Vector4f(-x, -y, -z, -w); }
@@ -293,7 +281,7 @@ namespace Math
     public:
         Matrix4f()
         {
-            this->matrix = new float[16];
+            matrix = new float[16];
             for (int i = 0; i < 16; i++) { matrix[i] = 0; }
         }
         Matrix4f(float xx, float xy, float xz, float xw,
@@ -301,7 +289,7 @@ namespace Math
                  float zx, float zy, float zz, float zw,
                  float wx, float wy, float wz, float ww)
         {
-            this->matrix = new float[16];
+            matrix = new float[16];
             M(0, 0) = xx; M(0, 1) = xy; M(0, 2) = xz; M(0, 3) = xw;
             M(1, 0) = yx; M(1, 1) = yy; M(1, 2) = yz; M(1, 3) = yw;
             M(2, 0) = zx; M(2, 1) = zy; M(2, 2) = zz; M(2, 3) = zw;
@@ -309,13 +297,14 @@ namespace Math
         }
         Matrix4f(const Matrix4f& other)
         {
-            this->matrix = new float[16];
-            for (int i = 0; i < 16; i++) { this->matrix[i] = other.matrix[i]; }
+            matrix = new float[16];
+            for (int i = 0; i < 16; i++) { matrix[i] = other.matrix[i]; }
         }
 
         ~Matrix4f()
         {
-            delete[] this->matrix;
+            if (matrix != nullptr)
+                delete[] matrix;
         }
 
         float& M(int row, int col) { return matrix[(row * 4) + col]; }
@@ -344,11 +333,11 @@ namespace Math
 
         Matrix4f& InitRotation(Vector3f f, Vector3f u, Vector3f r)
         {
-            this->Set(
-                r.x, r.y, r.z, 0,
-                u.x, u.y, u.z, 0,
-                f.x, f.y, f.z, 0,
-                  0,   0,   0, 1
+            Set(
+              r.x, r.y, r.z, 0,
+              u.x, u.y, u.z, 0,
+              f.x, f.y, f.z, 0,
+                0,   0,   0, 1
                 );
 
             return *this;
@@ -371,12 +360,12 @@ namespace Math
             float tanHalfFOV = (float)tanf(rad / 2);
             float zRange = zFar - zNear;
 
-            this->Set(
-                1 / (tanHalfFOV * aspect), 0,              0,                        0,
-                0,                         1 / tanHalfFOV, 0,                        0,
-                0,                         0,              zFar / zRange,            -zFar * zNear / zRange,
-                0,                         0,              1,                        0
-                );
+            Set(
+              1 / (tanHalfFOV * aspect), 0,              0,                        0,
+              0,                         1 / tanHalfFOV, 0,                        0,
+              0,                         0,              zFar / zRange,            -zFar * zNear / zRange,
+              0,                         0,              1,                        0
+              );
 
             return *this;
         }
@@ -387,12 +376,12 @@ namespace Math
             float height = top - bottom;
             float depth = zFar - zNear;
 
-            this->Set(
-                2 / width, 0,          0,         -(right + left) / width,
-                0,         2 / height, 0,         -(top + bottom) / height,
-                0,         0,         -2 / depth, -(zNear + zFar) / depth,
-                0,         0,          0,         1
-                );
+            Set(
+              2 / width, 0,          0,         -(right + left) / width,
+              0,         2 / height, 0,         -(top + bottom) / height,
+              0,         0,         -2 / depth, -(zNear + zFar) / depth,
+              0,         0,          0,         1
+              );
 
             return *this;
         }
@@ -418,7 +407,7 @@ namespace Math
 
         void operator = (const Matrix4f& m)
         {
-            for (int i = 0; i < 16; i++) { this->matrix[i] = m.matrix[i]; }
+            for (int i = 0; i < 16; i++) { matrix[i] = m.matrix[i]; }
         }
 
         Matrix4f operator * (Matrix4f& m)
@@ -452,7 +441,7 @@ namespace Math
             M(3, 0) = wx; M(3, 1) = wy; M(3, 2) = wz; M(3, 3) = ww;
         }
     public:
-        float* matrix;
+        float* matrix = nullptr;
 
     public:
         static Matrix4f identity;
@@ -467,7 +456,7 @@ namespace Math
     public:
         Quaternion()
         {
-            this->x = 0; this->y = 0; this->z = 0; this->w = 1;
+            x = 0; y = 0; z = 0; w = 1;
         }
         Quaternion(float x, float y, float z, float w)
         {
@@ -475,17 +464,17 @@ namespace Math
         }
         Quaternion(Vector4f v)
         {
-            this->x = v.x; this->y = v.y; this->z = v.z; this->w = v.w;
+            x = v.x; y = v.y; z = v.z; w = v.w;
         }
         Quaternion(Vector3f axis, float angle)
         {
             float sinHalfAngle = sinf(angle / 2);
             float cosHalfAngle = cosf(angle / 2);
 
-            this->x = axis.x * sinHalfAngle;
-            this->y = axis.y * sinHalfAngle;
-            this->z = axis.z * sinHalfAngle;
-            this->w = cosHalfAngle;
+            x = axis.x * sinHalfAngle;
+            y = axis.y * sinHalfAngle;
+            z = axis.z * sinHalfAngle;
+            w = cosHalfAngle;
         }
         // From Ken Shoemake's "Quaternion Calculus and Fast Animation" article
         Quaternion(Matrix4f rot)
@@ -528,11 +517,11 @@ namespace Math
                 }
             }
 
-            *this = this->Normalized();
+            *this = Normalized();
         }
         Quaternion(const Quaternion& other)
         {
-            this->x = other.x; this->y = other.y; this->z = other.z; this->w = other.w;
+            x = other.x; y = other.y; z = other.z; w = other.w;
         }
         ~Quaternion() { }
 
@@ -561,10 +550,10 @@ namespace Math
         {
             Quaternion correctedDest = dest;
 
-            if (shortest && this->Dot(dest) < 0)
+            if (shortest && Dot(dest) < 0)
                 correctedDest = Quaternion(-dest.x, -dest.y, -dest.z, -dest.w);
 
-            //return (correctedDest - *this * lerpFactor + *this).Normalized();
+            return (correctedDest - *this * lerpFactor + *this).Normalized();
         }
 
         Matrix4f ToRotationMatrix()
@@ -572,10 +561,6 @@ namespace Math
             Vector3f forward = Vector3f(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
             Vector3f up = Vector3f(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x));
             Vector3f right = Vector3f(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + w * y));
-
-            //Vector3f forward = Vector3f(2.0f * (x * z - w * y), 2.0f * (y * z + w * x), 1.0f - 2.0f * (x * x + y * y));
-            //Vector3f up = Vector3f(2.0f * (x * y + w * z), 1.0f - 2.0f * (x * x + z * z), 2.0f * (y * z - w * x));
-            //Vector3f right = Vector3f(1.0f - 2.0f * (y * y + z * z), 2.0f * (x * y - w * z), 2.0f * (x * z + w * y));
 
             return Matrix4f().InitRotation(forward, up, right);
         }

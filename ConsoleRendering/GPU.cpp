@@ -7,8 +7,6 @@
 #include "Shader.h"
 #include "Mesh.h"
 
-#include "TextLogger.h"
-
 
 // TEMP
 #include "TexturedShader.h"
@@ -17,11 +15,6 @@
 #define EPSILON 0.00001
 
 using namespace Math;
-
-//#define _DEBUG_LOGGER
-#ifdef _DEBUG_LOGGER
-TextLogger gpuLogger("GPU");
-#endif
 
 void Swap(float& a, float& b)
 {
@@ -81,21 +74,20 @@ GPU::~GPU()
 void GPU::DrawElements()
 {
     if (program == nullptr) return;
-    std::stringstream sStream;
     bool gotZValue = false;
 
     CHAR_INFO* screenBuffer = hConsole->GetScreenBuffer();
-    COORD sSize = { this->sWidth, this->sHeight };
+    COORD sSize = { sWidth, sHeight };
 
     // Transform the vertices
     for (int i = 0; i < vertexBufferSize; i++)
     {
         positionBuffer[i] = program->VertexShader(&vertexBuffer[i]);
-
-        vertexBuffer[i].pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
-        //vertexBuffer[i].uv = vertexBuffer[i].uv / positionBuffer[i].w;
+        Vertex& v = vertexBuffer[i];
+        v.pos = positionBuffer[i].XYZ() / positionBuffer[i].w;
     }
 
+    // If a vertex cross the nearclip, drop the polygon
     for (int v = 0; v < vertexBufferSize; v += 3)
     {
         validPolyBuffer[v / 3] = true;
@@ -103,10 +95,11 @@ void GPU::DrawElements()
         Vector4f vb = positionBuffer[v + 1];
         Vector4f vc = positionBuffer[v + 2];
 
-        if (va.w <= 0.01f || vb.w < 0.01f || vc.w < 0.01f)
+        if (va.w <= 0.01f || vb.w < 0.01f || vc.w < 0.01f) // Not good, hardcoded nearclip values.
         {
+            //return; // Return to clip the entire mesh instead
+
             validPolyBuffer[v / 3] = false;
-            //return; // Clip polygon, or the entire mesh (return for entire mesh)
         }
     }
 
@@ -330,9 +323,9 @@ void GPU::DrawElements()
 				float v = Interpolate(sv, ev, grad);
 				float wi = Interpolate(swi, ewi, grad);
 
-                if (z < this->zBuffer[index])
+                if (z < zBuffer[index])
                 {
-                    this->zBuffer[index] = z;
+                    zBuffer[index] = z;
                     CHAR_INFO ci;
 
                     program->FragmentShader(&ci, &Vector2f(u / wi, v / wi));
@@ -348,10 +341,10 @@ void GPU::DrawElements()
 // and we don't want to mess with the vertices coming in from the mesh
 void GPU::BindVertexBuffer(Vertex* buffer, int size)
 {
-    this->vertexBufferSize = size;
+    vertexBufferSize = size;
 
     for (int i = 0; i < size; i++)
-        this->vertexBuffer[i] = buffer[i];
+        vertexBuffer[i] = buffer[i];
 }
 
 void GPU::ClearZBuffer()
@@ -376,10 +369,10 @@ void GPU::SetConsoleHandle(Console* hConsole)
 {
     this->hConsole = hConsole;
 
-    this->sHeight = hConsole->GetBufferSizeAsCoord().Y;
-    this->sWidth = hConsole->GetBufferSizeAsCoord().X;
-    this->halfSHeight = this->sHeight / 2.0f;
-    this->halfSWidth = this->sWidth / 2.0f;
+    sHeight = hConsole->GetBufferSizeAsCoord().Y;
+    sWidth = hConsole->GetBufferSizeAsCoord().X;
+    halfSHeight = sHeight / 2.0f;
+    halfSWidth = sWidth / 2.0f;
 
     zBuffer = new float[hConsole->GetBufferSize()];
 }

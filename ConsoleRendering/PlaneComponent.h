@@ -9,7 +9,9 @@ class PlaneComponent : public Component
 {
 public:
     PlaneComponent(Shader* shader);
-    ~PlaneComponent();
+    ~PlaneComponent() { }
+
+    virtual void Destroy();
 
     virtual void Update(float delta);
     virtual void Render(RenderingEngine* renderingEngine);

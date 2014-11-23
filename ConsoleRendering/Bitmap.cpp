@@ -5,12 +5,12 @@ using namespace std;
 
 bool Bitmap::Load24(string fileName)
 {
-    this->loaded = false;
+    loaded = false;
     ifstream file;
 
     file.open(fileName.c_str(), std::ios::binary);
 
-    if (!file.is_open()) { return this->loaded; }
+    if (!file.is_open()) { return loaded; }
 
     // BMP header variables //
     unsigned char b = 0, m = 0;
@@ -35,7 +35,7 @@ bool Bitmap::Load24(string fileName)
     READ_TO_VAR(b, unsigned char);
     READ_TO_VAR(m, unsigned char);
 
-    if (b != 'B' || m != 'M') { return this->loaded; }
+    if (b != 'B' || m != 'M') { return loaded; }
 
     READ_TO_VAR(bmpSize, unsigned int);
     file.ignore(4);
@@ -54,29 +54,29 @@ bool Bitmap::Load24(string fileName)
     READ_TO_VAR(numColorsInPalette, unsigned int);
     READ_TO_VAR(importantColors, unsigned int);
 
-    if (bitsPerPixel != 24) { return this->loaded; }
+    if (bitsPerPixel != 24) { return loaded; }
 
-    this->width = pixelWidth;
-    this->height = pixelHeight;
-    this->bpp = bitsPerPixel;
+    width = pixelWidth;
+    height = pixelHeight;
+    bpp = bitsPerPixel;
 
     // Pixel array load //
-    this->bitmap = new RGB[pixelWidth * pixelHeight];
+    bitmap = new RGB[pixelWidth * pixelHeight];
 
     for (int row = pixelHeight - 1; row >= 0; row--)
     {
-        for (int col = 0; col < pixelWidth; col++)
+        for (unsigned int col = 0; col < pixelWidth; col++)
         {
-            READ_TO_VAR(this->bitmap[(row * pixelWidth) + col].b, unsigned char);
-            READ_TO_VAR(this->bitmap[(row * pixelWidth) + col].g, unsigned char);
-            READ_TO_VAR(this->bitmap[(row * pixelWidth) + col].r, unsigned char);
+            READ_TO_VAR(bitmap[(row * pixelWidth) + col].b, unsigned char);
+            READ_TO_VAR(bitmap[(row * pixelWidth) + col].g, unsigned char);
+            READ_TO_VAR(bitmap[(row * pixelWidth) + col].r, unsigned char);
         }
         file.ignore((3 * pixelWidth) % 4);
     }
 
     file.close();
-    this->loaded = true;
-    return this->loaded;
+    loaded = true;
+    return loaded;
 }
 
 RGB Bitmap::GetPixel(int x, int y)

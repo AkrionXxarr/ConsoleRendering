@@ -13,7 +13,7 @@ using namespace Math;
 TexturedShader::TexturedShader(char c, const char* fileName)
 {
     this->c = c;
-    this->bmp.Load24(fileName);
+    bmp.Load24(fileName);
 }
 
 TexturedShader::~TexturedShader()
@@ -48,8 +48,11 @@ void TexturedShader::FragmentShader(_CHAR_INFO* ci, Math::Vector2f* uv)
 		if (y >= bmp.height) { y = bmp.height - 1; }
 
         RGB rgb = bmp.GetPixel(x, y);
+        //RGB rgb = bmp.GetPixel(uv->x, uv->y);
 
         int intensity = int(0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
+
+        c = '#';
 
         if (intensity < 16)       { c = char(250); }
         else if (intensity < 32)  { c = char(249); }
