@@ -13,12 +13,16 @@
 #include "TexturedShader.h"
 #include "Time.h"
 
+#include "ConsoleInputExt.hpp"
+#include "ConsoleInputDefines.hpp"
+
 #define WIDTH 160
 #define HEIGHT 120
 
 const float zNear = 0.01f;
 
 using namespace Math;
+using namespace aki::input::wincon;
 
 int main()
 { 
@@ -30,6 +34,8 @@ int main()
     RenderingEngine renderingEngine;
     Object root;
     Time time;
+
+    ConsoleInputExt input(10, GetConsoleWindow());
 
     FlatShader fShader1('#', FOREGROUND_GREEN);
     FlatShader fShader2('@', FOREGROUND_RED);
@@ -53,7 +59,7 @@ int main()
     CHAR_INFO* screenBuffer = console.GetScreenBuffer();
 
     root.parent = nullptr;
-    plane1.AddComponent(new PlaneComponent(&fShader2));
+    plane1.AddComponent(new PlaneComponent(&tShader2));
     plane2.AddComponent(new PlaneComponent(&tShader1));
     floor.AddComponent(new PlaneComponent(&tShader3));
 
@@ -90,9 +96,12 @@ int main()
     int lastFrameCount = 0;
 
     bool running = true;
+    bool lockCursor = false;
     while (running)
     {
         time.Tick();
+        input.Tick();
+
         frameTimer += time.deltaTime;
         elapsedTime += time.deltaTime;
 
@@ -104,22 +113,61 @@ int main()
             frameTimer = 0;
         }
         
+        /*
         if (elapsedTime >= runTime)
         {
             running = false;
+        }
+        */
+
+        if (input.GetMouseUp(MOUSE_BUTTON::CLICK_LEFT) && !lockCursor)
+        {
+            input.LockCursor(true);
+            lockCursor = true;
+        }
+        else if (input.GetMouseUp(MOUSE_BUTTON::CLICK_LEFT) && lockCursor)
+        {
+            input.LockCursor(false);
+            lockCursor = false;
+        }
+
+        if (input.GetKeyDown(KEYBOARD::W))
+        {
+            camera.transform.pos = camera.transform.pos + camera.transform.rot.GetForward() * 0.25f;
+        }
+        if (input.GetKeyDown(KEYBOARD::S))
+        {
+            camera.transform.pos = camera.transform.pos - camera.transform.rot.GetForward() * 0.25f;
+        }
+        if (input.GetKeyDown(KEYBOARD::A))
+        {
+            camera.transform.pos = camera.transform.pos - camera.transform.rot.GetRight() * 0.25f;
+        }
+        if (input.GetKeyDown(KEYBOARD::D))
+        {
+            camera.transform.pos = camera.transform.pos + camera.transform.rot.GetRight() * 0.25f;
+        }
+
+        if (input.GetMouseAction(MOUSE_ACTION::MOVED))
+        {
+            POINT mDelta = input.GetDelta();
+
+            camera.transform.Rotate(Vector3f(0, 1, 0), mDelta.x * 0.04f);
+            camera.transform.Rotate(camera.transform.rot.GetRight(), mDelta.y * 0.04f);
         }
 
         c1 += s1 * time.deltaTime;
         c2 += s2 * time.deltaTime;
 
-        camera.transform.pos.z = (cos(c1) * camDist) + 4.25f;
-        camera.transform.pos.x = sin(c1) * camDist;
+        //camera.transform.pos.z = (cos(c1) * camDist) + 4.25f;
+        //camera.transform.pos.x = sin(c1) * camDist;
 
-        camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
+        //camera.transform.LookAt(plane2.transform.pos, Vector3f(0, 1, 0));
         
-        plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
-        plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
-        plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
+        //plane1.transform.Rotate(Vector3f(1, 0, 0), -0.005f);
+        //plane1.transform.Rotate(Vector3f(0, 1, 0), 0.002f);
+        //plane1.transform.Rotate(Vector3f(0, 0, 1), 0.004f);
+        plane1.transform.LookAt(camera.transform.pos, Vector3f(0, 1, 0));
 
         plane2.transform.pos.y = sin(c2) * 1.5f;
         plane2.transform.pos.z = 4 + ((sin(c1) - 0.5f) * 5);

@@ -47,6 +47,10 @@ void Console::InitializeSize(int width, int height)
     screenRect.Right = width - 1;
     screenRect.Bottom = height - 1;
 
+    SMALL_RECT t = { 0, 0, 1, 1 };
+
+    SetConsoleWindowInfo(outputHandle, TRUE, &t);
+
     SetConsoleScreenBufferSize(outputHandle, bufferSize);
     SetConsoleWindowInfo(outputHandle, TRUE, &screenRect);
 }

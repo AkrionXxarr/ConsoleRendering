@@ -13,6 +13,9 @@
   <ItemGroup>
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ConsoleInput.cpp" />
+    <ClCompile Include="ConsoleInputExt.cpp" />
+    <ClCompile Include="CursorLock.cpp" />
     <ClCompile Include="FlatShader.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="GPU.cpp" />
@@ -29,6 +32,9 @@
   <ItemGroup>
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ConsoleInput.hpp" />
+    <ClInclude Include="ConsoleInputDefines.hpp" />
+    <ClInclude Include="ConsoleInputExt.hpp" />
     <ClInclude Include="FlatShader.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="GPU.h" />
